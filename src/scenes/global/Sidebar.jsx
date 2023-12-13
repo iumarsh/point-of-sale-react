@@ -48,6 +48,7 @@ const Sidebar = () => {
           background: `${colors.primary[400]} !important`,
         },
         "& .pro-icon-wrapper": {
+
           backgroundColor: "transparent !important",
         },
         "& .pro-inner-item": {
@@ -57,6 +58,7 @@ const Sidebar = () => {
           color: "#868dfb !important",
         },
         "& .pro-menu-item.active": {
+
           color: "#6870fa !important",
         },
       }}
@@ -96,7 +98,7 @@ const Sidebar = () => {
                   alt="profile-user"
                   width="100px"
                   height="100px"
-                  src={`../../assets/user.png`}
+                  src={`../../assets/saran.png`}
                   style={{ cursor: "pointer", borderRadius: "50%" }}
                 />
               </Box>
@@ -107,10 +109,10 @@ const Sidebar = () => {
                   fontWeight="bold"
                   sx={{ m: "10px 0 0 0" }}
                 >
-                  Ed Roh
+                  Saran
                 </Typography>
                 <Typography variant="h5" color={colors.greenAccent[500]}>
-                  VP Fancy Admin
+                  Admin
                 </Typography>
               </Box>
             </Box>
