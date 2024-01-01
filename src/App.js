@@ -5,8 +5,10 @@ import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import UserDashboard from "./scenes/dashboard/UserDashboard"
 import Team from "./scenes/team";
+import AddCategory from "./scenes/addCategory";
+import CategoryList from "./scenes/addCategory/CategoryList";
 import Invoices from "./scenes/invoices";
-import Contacts from "./scenes/contacts";
+import Transactions from "./scenes/transactions";
 import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
@@ -21,6 +23,7 @@ function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const regularUser = true
+  console.log('isSidebar: ', isSidebar);
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -34,7 +37,9 @@ function App() {
             <Routes>
               <Route path="/" element={regularUser ? <UserDashboard/> : <Dashboard />} />
               <Route path="/team" element={<Team />} />
-              <Route path="/contacts" element={<Contacts />} />
+              <Route path="/category" element={<AddCategory />} />
+              <Route path="/categoryList" element={<CategoryList />} />
+              <Route path="/transactions" element={<Transactions />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/form" element={<Form />} />
               <Route path="/bar" element={<Bar />} />

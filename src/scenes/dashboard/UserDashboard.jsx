@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -7,14 +7,23 @@ import TableBody from '@mui/material/TableBody';
 import TableCell from '@mui/material/TableCell';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
+import { Box } from '@mui/system';
+import styled from '@emotion/styled';
 
-const initialData = [];
-
+export const FooterSection = styled(Box)(({theme}) => ({
+  display: 'flex',
+  alignItems: "center",
+  justifyContent: "flex-end",
+  marginTop: "20px"
+}));
+const BASEURL = 'http://localhost:5000'
 const UserDashboard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState('');
-  const [tableData, setTableData] = useState(initialData);
-
+  const [customerName, setCustomerName] = useState('');
+  const [tableData, setTableData] = useState([]);
+  console.log('tableData: ', tableData);
+  const [categories,setCategories] = useState([])
   const handleAdd = () => {
     if (selectedItem && quantity !== '') {
       const newItem = {
@@ -42,31 +51,78 @@ const UserDashboard = () => {
   const updateItem = (id) => {
       let _editItem = tableData?.find(x => x?.id === id);
   }
+  const performTransaction = async () => {
+    let _transactions = {
+      items: tableData,
+      grandTotal: calculateGrandTotal(),
+      customerName: customerName
+    }
 
-  const stocks = [
-    { id: 1, name: "Viscos", price: 80.2 },
-    { id: 2, name: "Palachi", price: 600 },
-    { id: 3, name: "Sheesha", price: 40 },
-    { id: 4, name: "BM Roza", price: 89.2 },
-    { id: 5, name: "Armani", price: 123.2 },
-    { id: 6, name: "AM Brand", price: 230 },
-    { id: 7, name: "Multani RX", price: 190 },
-    { id: 8, name: "Diamond", price: 20 },
-    { id: 9, name: "Double Bed Sheet", price: 50 },
-    { id: 10, name: "Roma Silonika", price: 75 },
-  ]
+    const url = new URL('/api/transaction',BASEURL)
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(_transactions),
+    });
+    console.log('response: ', response);
+
+    
+  }
+  const fetchCategories = async () => {
+    const url = new URL('/api/category',BASEURL)
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    const _categories = await response?.json()
+    setCategories(_categories?.categories?.map(x => ({
+      name: x?.name,
+      price: x?.price,
+      id: x?._id,
+      type: x?.categoryType
+    })) || [])
+  }
+
+  ///transactions
+
+  const fetchTransactions = async () => {
+    const url = new URL('/api/transaction',BASEURL)
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    const _transactions = await response?.json()
+    console.log('_transactions: ', _transactions);
+    
+  }
+  useEffect(()=> {
+    fetchCategories();
+    fetchTransactions();
+  },[])
+  const CategoryLabels = {
+    meter: "Meters",
+    dozen: "Dozens",
+    pair: "Pairs",
+    set: "Sets",
+    piece: "Pieces"
+  }
   return (
     <div style={{
-        
             margin: "10px"
-        
     }}>
       <Autocomplete
         sx={{
             width: "40%",
             marginBottom: "10px"
         }}
-        options={stocks} // Replace with your actual options
+        size='small'
+        options={categories} // Replace with your actual options
         getOptionLabel={(option) => option.name}
         value={selectedItem}
         onChange={(event, newValue) => setSelectedItem(newValue)}
@@ -79,14 +135,26 @@ const UserDashboard = () => {
             marginBottom: "10px"
         }}
         type="number"
-        label="Quantity (meters)"
+        size='small'
+        label={CategoryLabels?.[selectedItem?.type] || "Quantity"} 
         value={quantity}
         onChange={(e) => setQuantity(e.target.value)}
       />
-
-      <Button variant="contained" onClick={handleAdd}>
+      <Button sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
         Add
       </Button>
+      <FooterSection>
+          <TextField
+            sx={{
+                width: "40%",
+                marginBottom: "10px"
+            }}
+            size='small'
+            label="Customer Name"
+            value={customerName}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+       </FooterSection>
 
       <Table sx={{ maxHeight: "100vh", maxHeight: "100vh", overflowY: "scroll"}}>
         <TableHead>
@@ -134,6 +202,10 @@ const UserDashboard = () => {
           </TableRow>
         </TableBody>
       </Table>
+
+      <FooterSection>
+            <Button size="medium" variant="contained" onClick={performTransaction}>Perform Transaction</Button>
+      </FooterSection>
     </div>
   );
 };
