@@ -120,11 +120,11 @@ const AddCategory = () => {
         <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
             <InputLabel>Type</InputLabel>
             <Select value={type} onChange={(e) => setType(e.target.value)}>
-            <MenuItem value="meter">Meter</MenuItem>
-            <MenuItem value="dozen">Dozen</MenuItem>
-            <MenuItem value="pair">Pair</MenuItem>
-            <MenuItem value="set">Set</MenuItem>
-            <MenuItem value="piece">Piece</MenuItem>
+              <MenuItem value="meter">Meter</MenuItem>
+              <MenuItem value="dozen">Dozen</MenuItem>
+              <MenuItem value="pair">Pair</MenuItem>
+              <MenuItem value="set">Set</MenuItem>
+              <MenuItem value="piece">Piece</MenuItem>
             </Select>
         </FormControl>
         <TextField

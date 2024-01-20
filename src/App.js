@@ -5,8 +5,8 @@ import Sidebar from "./scenes/global/Sidebar";
 import Dashboard from "./scenes/dashboard";
 import UserDashboard from "./scenes/dashboard/UserDashboard"
 import Team from "./scenes/team";
-import AddCategory from "./scenes/addCategory";
-import CategoryList from "./scenes/addCategory/CategoryList";
+import AddCategory from "./scenes/Category";
+import CategoryList from "./scenes/Category/CategoryList";
 import Invoices from "./scenes/invoices";
 import Transactions from "./scenes/transactions";
 import Bar from "./scenes/bar";

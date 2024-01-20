@@ -1,17 +1,52 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { _categoryList } from "../../data/CategoryList";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import SaveIcon from "@mui/icons-material/Save";
+import EditIcon from "@mui/icons-material/Edit";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
+import CategoryUpdate from "./Update/CategoryUpdate";
 
+const BASEURL = 'http://localhost:5000'
 const CategoryList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [categories , setCategories] = useState([])
+  const [openUpdateModal, setOpenUpdateModal] = useState(false);
+  const [updatedCategory, setUpdatedCategory] = useState({})
+
+  const handleEditCategory = (id) => {
+    const _category = categories?.find(x => x?.id === id);
+    setUpdatedCategory(_category)
+    setOpenUpdateModal(true);
+  }
+   
+  const handleDeleteCategory = async (id) => {
+    try {
+      const url = new URL(`/api/category/${id}`, BASEURL);
+      const response = await fetch(url, {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+  
+      if (response.ok) {
+        console.log('Category deleted successfully');
+      } else {
+        const error = await response.json();
+        console.error('Error deleting category:', error);
+      }
+    } catch (error) {
+      console.error('Error deleting category:', error);
+    }
+  };
+  
   console.log('categories: ', categories);
   const columns = [
     { field: "_id", headerName: "ID", flex:1},
@@ -41,7 +76,31 @@ const CategoryList = () => {
       headerName: "Quantity",
       type: "number",
       flex: 1,
-
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        // const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={()=>handleEditCategory(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={()=> handleDeleteCategory(id)}
+            color="inherit"
+          />,
+        ];
+      },
     },
     
     // {
@@ -98,6 +157,7 @@ const CategoryList = () => {
   }
 
   return (
+    <>
     <Box m="20px">
       <Header title="TEAM" subtitle="Managing the Team Members" />
       <Box
@@ -132,6 +192,17 @@ const CategoryList = () => {
         <DataGrid checkboxSelection rows={categories} columns={columns} />
       </Box>
     </Box>
+    <CategoryUpdate 
+      open={openUpdateModal} 
+      setOpen={setOpenUpdateModal} 
+      categoryName = {updatedCategory?.name}
+      categoryType = {updatedCategory?.categoryType}
+      categoryPrice = {updatedCategory?.price}
+      categoryQuantity = {updatedCategory?.quantity}
+      categoryAdditionalInfo = {updatedCategory?.additionalInfo}
+      categoryId={updatedCategory?._id}
+    />
+    </>
   );
 };
 
