@@ -7,8 +7,10 @@ import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettin
 import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
+import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 const AddCategory = () => {
+  const navigate = useNavigate();
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
 
@@ -17,10 +19,12 @@ const AddCategory = () => {
   const [price, setPrice] = useState(0);
   const [quantity, setQuantity] = useState('');
   const [additionalInfo, setAdditionalInfo] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const BASEURL = 'http://localhost:5000'
   const handleAddCategory = async () => {
     try {
+      setLoading(true);
     const category = {
         name,
         categoryType: type,
@@ -38,8 +42,12 @@ const AddCategory = () => {
       body: JSON.stringify(category),
     });
 
-    console.log('response: ', response);
+    if(response.ok){
+      navigate('/');
+    }
+    setLoading(false);
     } catch (error) {
+      setLoading(false);
       console.error('Error adding category:', error);
     }
   };
@@ -153,8 +161,8 @@ const AddCategory = () => {
             onChange={(e) => setAdditionalInfo(e.target.value)}
             sx={{ mt: 2 }}
         />
-        <Button variant="contained" color="primary" onClick={handleAddCategory} sx={{ mt: 2 }}>
-            Add Category
+        <Button disabled={loading} variant="contained" color="primary" onClick={handleAddCategory} sx={{ mt: 2 }}>
+           {loading ? "Loading..." : "Add Category"}
         </Button>
       </Box>
     </Box>

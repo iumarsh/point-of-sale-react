@@ -1,24 +1,25 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
-import { useNavigate } from 'react-router-dom';
-const CategoryUpdate = ({
+
+const UpdateBillingModal = ({
     setOpen = "",
     open = "",
     categoryName = "",
     categoryType = "",
     categoryPrice = "",
     categoryQuantity = "",
-    categoryAdditionalInfo = "",
+    categoryTotal = "",
+    categoryDiscount = 0,
     categoryId="",
-    fetchCategories
+    handleUpdateCategory
 }) => {
-  const navigate = useNavigate();
   const [name, setName] = useState(categoryName);
   const [type, setType] = useState(categoryType);
   const [price, setPrice] = useState(categoryPrice);
   const [quantity, setQuantity] = useState(categoryQuantity);
-  const [additionalInfo, setAdditionalInfo] = useState(categoryAdditionalInfo);
-  const [loading, setLoading] = useState(false);
+  const [total, setTotal] = useState(categoryTotal);
+  const [discount, setDiscount] = useState(categoryDiscount)
+
   const handleClickOpen = () => {
     setOpen(true);
   };
@@ -28,35 +29,6 @@ const CategoryUpdate = ({
   };
 
   const BASEURL = 'http://localhost:5000'
-  const handleUpdateCategory = async () => {
-    try {
-      setLoading(true);
-    const category = {
-        name,
-        categoryType: type,
-        quantity,
-        additionalInfo,
-        price,
-    }
-    const url = new URL(`/api/category/${categoryId}`, BASEURL); 
-    const response = await fetch(url, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(category),
-    });
-    if(response.ok){
-      fetchCategories();
-        setOpen(false);
-    }
-    setLoading(false);
-    } catch (error) {
-      setLoading(false);
-      console.error('Error adding category:', error);
-    }
-  };
-
   useEffect(() => {
     // Update state when prop values change
     if(open){
@@ -64,36 +36,30 @@ const CategoryUpdate = ({
         setType(categoryType);
         setPrice(categoryPrice);
         setQuantity(categoryQuantity);
-        setAdditionalInfo(categoryAdditionalInfo);
+        setTotal(categoryTotal)
     }
    
   }, [open]);
-
+  useEffect(()=> {
+    setTotal((price * quantity) -  (price * quantity * discount/100) )
+  },[price, quantity,discount])
 
   return (
     <>
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
-        <DialogTitle>Add Category</DialogTitle>
+        <DialogTitle>Update Billing</DialogTitle>
         <DialogContent>
           <Box m="20px">
             <TextField
+              type="text"
               label="Category Name"
               variant="outlined"
               fullWidth
+              disabled={true}
               value={name}
               onChange={(e) => setName(e.target.value)}
               sx={{ mt: 2 }}
             />
-            <FormControl fullWidth variant="outlined" sx={{ mt: 2 }}>
-              <InputLabel>Type</InputLabel>
-              <Select value={type} onChange={(e) => setType(e.target.value)}>
-                <MenuItem value="meter">Meter</MenuItem>
-                <MenuItem value="dozen">Dozen</MenuItem>
-                <MenuItem value="pair">Pair</MenuItem>
-                <MenuItem value="set">Set</MenuItem>
-                <MenuItem value="piece">Piece</MenuItem>
-              </Select>
-            </FormControl>
             <TextField
               type="number"
               label="Quantity"
@@ -112,12 +78,23 @@ const CategoryUpdate = ({
               onChange={(e) => setPrice(e.target.value)}
               sx={{ mt: 2 }}
             />
-            <TextField
-              label="Additional Info"
+             <TextField
+              type="number"
+              label="Discount"
               variant="outlined"
               fullWidth
-              value={additionalInfo}
-              onChange={(e) => setAdditionalInfo(e.target.value)}
+              value={discount}
+              onChange={(e) => setDiscount(e.target.value)}
+              sx={{ mt: 2 }}
+            />
+             <TextField
+              type="text"
+              label="Total"
+              variant="outlined"
+              fullWidth
+              disabled={true}
+              value={total}
+              onChange={(e) => setTotal(e.target.value)}
               sx={{ mt: 2 }}
             />
           </Box>
@@ -126,8 +103,8 @@ const CategoryUpdate = ({
           <Button onClick={handleClose} color="secondary">
             Cancel
           </Button>
-          <Button disabled={loading} onClick={handleUpdateCategory} color="primary">
-            { loading ? "Loading..." : "Update Category"}
+          <Button onClick={()=> handleUpdateCategory(price, quantity, discount)} color="primary">
+            Update Billing
           </Button>
         </DialogActions>
       </Dialog>
@@ -135,4 +112,4 @@ const CategoryUpdate = ({
   );
 };
 
-export default CategoryUpdate;
+export default UpdateBillingModal;

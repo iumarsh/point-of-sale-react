@@ -19,6 +19,7 @@ const CategoryList = () => {
   const [categories , setCategories] = useState([])
   const [openUpdateModal, setOpenUpdateModal] = useState(false);
   const [updatedCategory, setUpdatedCategory] = useState({})
+  const [loading, setLoading] = useState(false);
 
   const handleEditCategory = (id) => {
     const _category = categories?.find(x => x?.id === id);
@@ -142,18 +143,24 @@ const CategoryList = () => {
   },[])
 
   const fetchCategories = async () => {
-    const url = new URL('/api/category',BASEURL)
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    const _categories = await response?.json()
-    setCategories(_categories?.categories?.map(x => ({
-      ...x,
-      id: x?._id,
-    })) || [])
+    try {
+      setLoading(true)
+      const url = new URL('/api/category',BASEURL)
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      const _categories = await response?.json()
+      setCategories(_categories?.categories?.map(x => ({
+        ...x,
+        id: x?._id,
+      })) || [])
+      setLoading(false)
+    } catch (error) {
+      setLoading(false)
+    }
   }
 
   return (
@@ -189,7 +196,7 @@ const CategoryList = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={categories} columns={columns} />
+        <DataGrid loading={loading} checkboxSelection rows={categories} columns={columns} />
       </Box>
     </Box>
     <CategoryUpdate 
@@ -201,6 +208,7 @@ const CategoryList = () => {
       categoryQuantity = {updatedCategory?.quantity}
       categoryAdditionalInfo = {updatedCategory?.additionalInfo}
       categoryId={updatedCategory?._id}
+      fetchCategories={fetchCategories}
     />
     </>
   );
