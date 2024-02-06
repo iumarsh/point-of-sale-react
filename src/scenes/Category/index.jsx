@@ -9,6 +9,7 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { BASEURL } from '../../data/endpoints';
 const AddCategory = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -21,7 +22,6 @@ const AddCategory = () => {
   const [additionalInfo, setAdditionalInfo] = useState('');
   const [loading, setLoading] = useState(false);
 
-  const BASEURL = 'http://localhost:5000'
   const handleAddCategory = async () => {
     try {
       setLoading(true);
@@ -112,7 +112,7 @@ const AddCategory = () => {
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Header title="Mahmood Dari House" subtitle="Add Category Section" />
       <Box
         m="40px 0 0 0"
         height="75vh"

@@ -11,8 +11,8 @@ import EditIcon from "@mui/icons-material/Edit";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import CategoryUpdate from "./Update/CategoryUpdate";
+import { BASEURL } from "../../data/endpoints";
 
-const BASEURL = 'http://localhost:5000'
 const CategoryList = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
@@ -137,7 +137,6 @@ const CategoryList = () => {
     // },
   ];
 
-  const BASEURL = 'http://localhost:5000'
   useEffect(()=> {
     fetchCategories();
   },[])
@@ -166,7 +165,7 @@ const CategoryList = () => {
   return (
     <>
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Header title="Mahmood Dari House" subtitle="Category List" />
       <Box
         m="40px 0 0 0"
         height="75vh"

@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
+import { BASEURL } from '../../../data/endpoints';
 const CategoryUpdate = ({
     setOpen = "",
     open = "",
@@ -27,7 +28,6 @@ const CategoryUpdate = ({
     setOpen(false);
   };
 
-  const BASEURL = 'http://localhost:5000'
   const handleUpdateCategory = async () => {
     try {
       setLoading(true);

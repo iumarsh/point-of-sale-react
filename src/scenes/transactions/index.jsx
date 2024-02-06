@@ -8,6 +8,7 @@ import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import moment from 'moment'
+import { BASEURL } from "../../data/endpoints";
 
 const Transactions = () => {
   const theme = useTheme();
@@ -72,7 +73,6 @@ const Transactions = () => {
     // },
   ];
 
-  const BASEURL = 'http://localhost:5000'
   useEffect(()=> {
     fetchTransactions();
   },[])
@@ -99,7 +99,7 @@ const Transactions = () => {
 
   return (
     <Box m="20px">
-      <Header title="TEAM" subtitle="Managing the Team Members" />
+      <Header title="Mahmood Dari House" subtitle="Transaction Details" />
       <Box
         m="40px 0 0 0"
         height="75vh"

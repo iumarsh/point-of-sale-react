@@ -15,6 +15,8 @@ import UpdateBillingModal from './UpdateBillingModal';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import 'jspdf-invoice-template';
+import ActionDialog from '../../components/ActionDialog';
+import { BASEURL } from '../../data/endpoints';
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
@@ -29,7 +31,6 @@ const invoiceData = [
   // Add more items as needed
 ];
 
-const BASEURL = 'http://localhost:5000'
 const UserDashboard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState('');
@@ -39,6 +40,7 @@ const UserDashboard = () => {
   const [updatedItem, setUpdatedItem] = useState({})
   const [currentId, setCurrentId] = useState(1)
   const [categories,setCategories] = useState([])
+  const [openPDFDialog, setOpenPDFDialog] = useState(false)
   const handleAdd = () => {
     if (selectedItem && quantity !== '') {
       const newItem = {
@@ -183,10 +185,10 @@ const UserDashboard = () => {
   // Add customer info
   doc.setTextColor(0, 0, 0); // Reset text color
   doc.setFontSize(9);
-  doc.text('Customer Name: John Doe', 14, 40);
-  doc.text('Address: 123 Main St, City', 14, 45);
-  doc.text('Address: 123 Main St, City', 14, 50);
-  doc.text('Transaction Id: 123 Main St, City', 14, 55)
+  // doc.text('Customer Name: John Doe', 14, 40);
+  // doc.text('Address: 123 Main St, City', 14, 45);
+  // doc.text('Address: 123 Main St, City', 14, 50);
+  // doc.text('Transaction Id: 123 Main St, City', 14, 55)
   
 
   //smaple
@@ -226,15 +228,15 @@ const UserDashboard = () => {
   doc.text(`Grand Total: ${grandTotal} pkr`, 150, doc.autoTable.previous.finalY + 10);
 
   // Add precautions and signature
-  doc.text('Precautions:', 20, doc.autoTable.previous.finalY + 40);
-  doc.text('1. This is a sample invoice.', 20, doc.autoTable.previous.finalY + 45);
-  doc.text('2. Payment is due within 30 days.', 20, doc.autoTable.previous.finalY + 50);
+  // doc.text('Precautions:', 20, doc.autoTable.previous.finalY + 40);
+  // doc.text('1. This is a sample invoice.', 20, doc.autoTable.previous.finalY + 45);
+  // doc.text('2. Payment is due within 30 days.', 20, doc.autoTable.previous.finalY + 50);
 
   // Add signature line
-  doc.text('Signature', 20, doc.autoTable.previous.finalY + 80);
+  doc.text('Signature', 20, doc.autoTable.previous.finalY + 60);
 
 
-  return doc.save('bloburl.pdf');
+  return doc.save('invoice.pdf');
   };
 
   //
@@ -269,24 +271,45 @@ const UserDashboard = () => {
       setOpenBillingModal(false)
   }
   const performTransaction = async () => {
-    let _transactions = {
-      items: tableData,
-      grandTotal: calculateGrandTotal(),
-      customerName: customerName
-    }
+    try {
+      let _transactions = {
+        items: tableData,
+        grandTotal: calculateGrandTotal(),
+        customerName: customerName
+      }
+  
+      const url = new URL('/api/transaction',BASEURL)
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(_transactions),
+      });
+      if (response.ok) {
+        setTableData([])
+      }else{
+        throw new Error("Something went wrong!");
+      }
 
-    const url = new URL('/api/transaction',BASEURL)
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(_transactions),
-    });
-    console.log('response: ', response);
+    } catch (error) {
+      alert(error)
+      console.log('error: ', error);
+    }
+    
 
     
   }
+  const onlyPerformTransaction = async () => {
+    performTransaction();
+    setOpenPDFDialog(false);
+  }
+  const handleTransactionAndPDF = async () => {
+    await performTransaction();
+    generatePDF();
+    setOpenPDFDialog(false);
+  }
+  
   const fetchCategories = async () => {
     const url = new URL('/api/category',BASEURL)
     const response = await fetch(url, {
@@ -417,7 +440,7 @@ const UserDashboard = () => {
       </Table>
 
       <FooterSection>
-            <Button size="medium" variant="contained" onClick={performTransaction}>Perform Transaction</Button>
+            <Button size="medium" variant="contained" onClick={()=> setOpenPDFDialog(true)}>Perform Transaction</Button>
       </FooterSection>
       <UpdateBillingModal 
         open={openBillingModal} 
@@ -431,6 +454,12 @@ const UserDashboard = () => {
         categoryId=""
         handleUpdateCategory={handleUpdateCategory}
         />
+        <ActionDialog 
+          open={openPDFDialog} 
+          desc="Do you want the PDF as well" 
+          title="Transaction Dialog" 
+          handleClose={onlyPerformTransaction} 
+          submitHandler={handleTransactionAndPDF}/>
     </div>
   );
 };

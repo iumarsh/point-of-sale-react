@@ -28,7 +28,6 @@ const UpdateBillingModal = ({
     setOpen(false);
   };
 
-  const BASEURL = 'http://localhost:5000'
   useEffect(() => {
     // Update state when prop values change
     if(open){
