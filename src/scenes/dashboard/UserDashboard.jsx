@@ -17,6 +17,7 @@ import 'jspdf-autotable';
 import 'jspdf-invoice-template';
 import ActionDialog from '../../components/ActionDialog';
 import { BASEURL } from '../../data/endpoints';
+import _ from "lodash"
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
@@ -380,7 +381,7 @@ const UserDashboard = () => {
         value={quantity}
         onChange={(e) => setQuantity(e.target.value)}
       />
-      <Button sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
+      <Button disabled={ _.isEmpty(selectedItem) || _.isEmpty(quantity)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
         Add
       </Button>
       <FooterSection>
@@ -440,7 +441,7 @@ const UserDashboard = () => {
       </Table>
 
       <FooterSection>
-            <Button size="medium" variant="contained" onClick={()=> setOpenPDFDialog(true)}>Perform Transaction</Button>
+            <Button disabled={tableData?.length === 0} size="medium" variant="contained" onClick={()=> setOpenPDFDialog(true)}>Perform Transaction</Button>
       </FooterSection>
       <UpdateBillingModal 
         open={openBillingModal} 

@@ -9,6 +9,7 @@ import AddCategory from "./scenes/Category";
 import CategoryList from "./scenes/Category/CategoryList";
 import Invoices from "./scenes/invoices";
 import Transactions from "./scenes/transactions";
+import Cheques from "./scenes/cheques"
 import Bar from "./scenes/bar";
 import Form from "./scenes/form";
 import Line from "./scenes/line";
@@ -40,6 +41,7 @@ function App() {
               <Route path="/category" element={<AddCategory />} />
               <Route path="/categoryList" element={<CategoryList />} />
               <Route path="/transactions" element={<Transactions />} />
+              <Route path="/cheques" element={<Cheques />} />
               <Route path="/invoices" element={<Invoices />} />
               <Route path="/form" element={<Form />} />
               <Route path="/bar" element={<Bar />} />
