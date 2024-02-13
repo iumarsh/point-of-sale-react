@@ -26,6 +26,13 @@ export const FooterSection = styled(Box)(({theme}) => ({
   justifyContent: "flex-end",
   marginTop: "20px"
 }));
+export const RowSection = styled(Box)(({theme}) => ({
+  display: 'flex',
+}));
+export const ColumnSection = styled(Box)(({theme}) => ({
+  display: 'flex',
+  flexDirection: "column"
+}));
 const invoiceData = [
   { name: 'Item 1', quantity: 2, price: 10, total: 20 },
   { name: 'Item 2', quantity: 1, price: 15, total: 15 },
@@ -35,6 +42,7 @@ const invoiceData = [
 const UserDashboard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState('');
+  const [than, setThan] = useState(1);
   const [customerName, setCustomerName] = useState('');
   const [tableData, setTableData] = useState([]);
   const [openBillingModal,setOpenBillingModal] = useState(false);
@@ -47,7 +55,7 @@ const UserDashboard = () => {
       const newItem = {
         id: currentId,
         name: selectedItem.name,
-        quantity: parseFloat(quantity),
+        quantity: parseFloat(quantity) * than,
         price: selectedItem.price,
         type: selectedItem.type,
         discount: 0, // You can implement discount logic here
@@ -58,6 +66,7 @@ const UserDashboard = () => {
       // Clear inputs after adding
       setSelectedItem(null);
       setQuantity('');
+      setThan(1)
     }
   };
   //PDF
@@ -289,6 +298,8 @@ const UserDashboard = () => {
       });
       if (response.ok) {
         setTableData([])
+        setThan(1);
+        setCustomerName("")
       }else{
         throw new Error("Something went wrong!");
       }
@@ -357,33 +368,54 @@ const UserDashboard = () => {
     <div style={{
             margin: "10px"
     }}>
-      <Autocomplete
-        sx={{
-            width: "40%",
-            marginBottom: "10px"
-        }}
-        size='small'
-        options={categories} // Replace with your actual options
-        getOptionLabel={(option) => option.name}
-        value={selectedItem}
-        onChange={(event, newValue) => setSelectedItem(newValue)}
-        renderInput={(params) => <TextField {...params} label="Select Item" />}
-      />
+      <ColumnSection>
+        <Autocomplete
+          sx={{
+              width: "40%",
+              marginBottom: "10px"
+          }}
+          size='small'
+          options={categories} // Replace with your actual options
+          getOptionLabel={(option) => option.name}
+          value={selectedItem}
+          onChange={(event, newValue) => setSelectedItem(newValue)}
+          renderInput={(params) => <TextField {...params} label="Select Item" />}
+        />
 
-      <TextField
-        sx={{
-            width: "40%",
-            marginBottom: "10px"
-        }}
-        type="number"
-        size='small'
-        label={CategoryLabels?.[selectedItem?.type] || "Quantity"} 
-        value={quantity}
-        onChange={(e) => setQuantity(e.target.value)}
-      />
-      <Button disabled={ _.isEmpty(selectedItem) || _.isEmpty(quantity)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
-        Add
-      </Button>
+        <TextField
+          sx={{
+              width: "40%",
+              marginBottom: "10px"
+          }}
+          type="number"
+          size='small'
+          label={CategoryLabels?.[selectedItem?.type] || "Quantity"} 
+          value={quantity}
+          onChange={(e) => setQuantity(e.target.value)}
+        />
+        <RowSection>
+          <TextField
+          sx={{
+              width: "40%",
+              marginBottom: "10px"
+          }}
+          type="number"
+          size='small'
+          label={"Packing (Th)"} 
+          value={than}
+          onChange={(e) => {
+            if(e.target.value <=0)
+              setThan(1);
+            else
+            setThan(e.target.value)
+          }}
+        />
+        <Button disabled={ _.isEmpty(selectedItem) || _.isEmpty(quantity)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
+          Add
+        </Button>
+      </RowSection>
+      </ColumnSection>
+      
       <FooterSection>
           <TextField
             sx={{
