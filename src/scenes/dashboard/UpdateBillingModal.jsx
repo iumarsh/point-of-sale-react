@@ -36,6 +36,7 @@ const UpdateBillingModal = ({
         setPrice(categoryPrice);
         setQuantity(categoryQuantity);
         setTotal(categoryTotal)
+        setDiscount(0)
     }
    
   }, [open]);
