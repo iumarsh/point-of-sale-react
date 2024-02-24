@@ -18,6 +18,8 @@ import 'jspdf-invoice-template';
 import ActionDialog from '../../components/ActionDialog';
 import { BASEURL } from '../../data/endpoints';
 import _ from "lodash"
+import Header from '../../components/Header';
+import moment from 'moment'
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
@@ -26,8 +28,12 @@ export const FooterSection = styled(Box)(({theme}) => ({
   justifyContent: "flex-end",
   marginTop: "20px"
 }));
-export const RowSection = styled(Box)(({theme}) => ({
+export const RowSection = styled(Box)(({theme, border=false}) => ({
   display: 'flex',
+  padding: "20px",
+  gap: "10px",
+  marginBottom: "10px",
+  border: border && ".5px solid #909090",
 }));
 export const ColumnSection = styled(Box)(({theme}) => ({
   display: 'flex',
@@ -43,147 +49,64 @@ const UserDashboard = () => {
   const [selectedItem, setSelectedItem] = useState(null);
   const [quantity, setQuantity] = useState('');
   const [than, setThan] = useState(1);
+  const [rate, setRate] = useState("")
+  const [discount, setDiscount] = useState(0);
   const [customerName, setCustomerName] = useState('');
+  const [cnic, setCnic] = useState('');
+  const [contact, setContact] = useState('');
+  // const [invoiceDate, setInvoiceDate] = useState(moment().format('DD-MM-YYYY'));
   const [tableData, setTableData] = useState([]);
   const [openBillingModal,setOpenBillingModal] = useState(false);
   const [updatedItem, setUpdatedItem] = useState({})
   const [currentId, setCurrentId] = useState(1)
   const [categories,setCategories] = useState([])
   const [openPDFDialog, setOpenPDFDialog] = useState(false)
+
+  const invoiceDate = moment().format('YYYY-MM-DD');
+
+  
+
+
+  //
+
+  useEffect(()=> {
+      if(selectedItem)
+        {
+          setRate(selectedItem?.price);
+          setThan(1);
+          setDiscount(0);
+          setQuantity(1)
+        }
+  }, [selectedItem?.name])
   const handleAdd = () => {
     if (selectedItem && quantity !== '') {
       const newItem = {
         id: currentId,
         name: selectedItem.name,
-        quantity: parseFloat(quantity) * than,
-        price: selectedItem.price,
+        quantity: parseFloat(quantity),
+        than: than,
+        price: rate,
         type: selectedItem.type,
-        discount: 0, // You can implement discount logic here
+        discount: discount, // You can implement discount logic here
       };
 
       setTableData((prevData) => [...prevData, newItem]);
       setCurrentId(prev => prev + 1)
       // Clear inputs after adding
-      setSelectedItem(null);
-      setQuantity('');
-      setThan(1)
+      // setSelectedItem(null);
+      // setQuantity('');
+      // setThan(1)
     }
   };
   //PDF
   const generatePDF = () => {
-  //   const doc = new jsPDF();
 
-  //   // Example data
-  //   const data = {
-  //     outputType: 'save',
-  //     returnJsPDFDocObject: true,
-  //     fileName: 'Invoice_2022.pdf',
-  //     orientationLandscape: false,
-  //     compress: true,
-  //     logo: {
-  //       src: 'https://raw.githubusercontent.com/edisonneza/jspdf-invoice-template/demo/images/logo.png',
-  //       width: 53.33,
-  //       height: 26.66,
-  //       margin: { top: 0, left: 0 },
-  //     },
-  //     stamp: {
-  //       inAllPages: true,
-  //       src: 'https://raw.githubusercontent.com/edisonneza/jspdf-invoice-template/demo/images/qr_code.jpg',
-  //       width: 20,
-  //       height: 20,
-  //       margin: { top: 0, left: 0 },
-  //     },
-  //     business: {
-  //       name: 'Business Name',
-  //       address: 'Albania, Tirane ish-Dogana, Durres 2001',
-  //       phone: '(+355) 069 11 11 111',
-  //       email: 'email@example.com',
-  //       email_1: 'info@example.al',
-  //       website: 'www.example.al',
-  //     },
-  //     contact: {
-  //       label: 'Invoice issued for:',
-  //       name: 'Client Name',
-  //       address: 'Albania, Tirane, Astir',
-  //       phone: '(+355) 069 22 22 222',
-  //       email: 'client@website.al',
-  //       otherInfo: 'www.website.al',
-  //     },
-  //     invoice: {
-  //       label: 'Invoice #: ',
-  //       num: 19,
-  //       invDate: 'Payment Date: 01/01/2021 18:12',
-  //       invGenDate: 'Invoice Date: 02/02/2021 10:17',
-  //       headerBorder: true,
-  //       tableBodyBorder: true,
-  //       header: [
-  //         { title: '#', style: { width: 10 } },
-  //         { title: 'Title', style: { width: 30 } },
-  //         { title: 'Description', style: { width: 80 } },
-  //         { title: 'Price' },
-  //         { title: 'Quantity' },
-  //         { title: 'Unit' },
-  //         { title: 'Total' },
-  //       ],
-  //       table: Array.from(Array(15), (item, index) => [
-  //         index + 1,
-  //         'There are many variations ',
-  //         'Lorem Ipsum is simply dummy text dummy text ',
-  //         200.5,
-  //         4.5,
-  //         'm2',
-  //         400.5,
-  //       ]),
-  //       additionalRows: [
-  //         {
-  //           col1: 'Total:',
-  //           col2: '145,250.50',
-  //           col3: 'ALL',
-  //           style: { fontSize: 14 },
-  //         },
-  //         {
-  //           col1: 'VAT:',
-  //           col2: '20',
-  //           col3: '%',
-  //           style: { fontSize: 10 },
-  //         },
-  //         {
-  //           col1: 'SubTotal:',
-  //           col2: '116,199.90',
-  //           col3: 'ALL',
-  //           style: { fontSize: 10 },
-  //         },
-  //       ],
-  //       invDescLabel: 'Invoice Note',
-  //       invDesc:
-  //         'There are many variations of passages of Lorem Ipsum available, but the majority have suffered alteration in some form, by injected humour, or randomised words which don\'t look even slightly believable. If you are going to use a passage of Lorem Ipsum, you need to be sure there isn\'t anything embarrassing hidden in the middle of text. All the Lorem Ipsum generators on the Internet tend to repeat predefined chunks as necessary.',
-  //     },
-  //     footer: {
-  //       text: 'The invoice is created on a computer and is valid without the signature and stamp.',
-  //     },
-  //     pageEnable: true,
-  //     pageLabel: 'Page ',
-  //   };
-  //   const columns = ['ID', 'Name', 'Quantity', 'Price', 'Total'];
-  // const alpha = [
-  //   [1, 'Item 1', 2, 10, 20],
-  //   [2, 'Item 2', 3, 15, 45],
-  //   // Add more rows as needed
-  // ];
-
-
-  //   doc.autoTable({
-  //     head: [columns],
-  //     body: alpha,
-  //   });
-  
-  
-
-  //   // Add additional features if needed
-
-  //   doc.save("da.pdf");
-
-  const doc = new jsPDF();
+  const pageSize = { width: 210, height: 297 }; 
+  const doc = new jsPDF({
+    orientation: 'portrait', // or 'landscape'
+    unit: 'mm',
+    format: [pageSize.width, pageSize.height]
+  });
 
   // Add header with brand name and background color
   doc.setFillColor(0, 0, 0); // Grey background color
@@ -193,9 +116,17 @@ const UserDashboard = () => {
   doc.text('Mahmood Dari House', 20, 11);
 
   // Add customer info
-  doc.setTextColor(0, 0, 0); // Reset text color
-  doc.setFontSize(9);
-  // doc.text('Customer Name: John Doe', 14, 40);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(80); // Reset text color
+  
+  doc.setFontSize(11);
+  doc.text(`Client Name: ${customerName}`, 16, 25);
+  doc.text(`CNIC: ${cnic}`, 16, 30);
+  doc.text(`Contact No: ${contact}`, 16, 35);
+  doc.text(`Date: ${invoiceDate}`, 16, 40);
+
+  doc.setTextColor(0); // Reset text color to black
+  doc.setFont('helvetica', 'normal');
   // doc.text('Address: 123 Main St, City', 14, 45);
   // doc.text('Address: 123 Main St, City', 14, 50);
   // doc.text('Transaction Id: 123 Main St, City', 14, 55)
@@ -203,39 +134,84 @@ const UserDashboard = () => {
 
   //smaple
 
+  //Data formulation
+
+  let accumulation = {};
+  
+  
+
+  //
+  tableData.forEach(item => {
+    const key = `${item.name}-${item.type}`; // Unique key based on name and type
+    const repeatedQuantity = Array.from({ length: parseInt(item.than) }, () => item.quantity);  
+    // const repeatedQuantity = Array(parseInt(item.than)).fill(item.quantity);  // => than times quantity => 2 than and 30m => [30,30]
+    if (accumulation[key]) {
+        accumulation[key].quantity = accumulation[key].quantity.concat(repeatedQuantity);
+        accumulation[key].than =  parseInt(accumulation[key].than) + parseInt(item.than);
+    } else {
+        accumulation[key] = {
+            name: item.name,
+            quantity: repeatedQuantity,
+            than: parseInt(item.than), // Convert to integer if needed
+            type: item.type,
+            price: item.price,
+            discount: item.discount
+        };
+    }
+});
+
+// Create the desired output format
+const result = Object.values(accumulation || {}).map(item => {
+   return {
+    Description: `${item.name} (${item.quantity?.map(x => x)?.join(", ")})`,
+    Quantity: `${item.quantity?.reduce((acc, curr) => acc + curr, 0)}`,
+    Than: item.than,
+    UnitOfMeasurement: item.type,
+    Price: item.price,
+    Total: (parseInt(item.quantity?.reduce((acc, curr) => acc + curr, 0)) *parseInt(item.price))?.toLocaleString(),
+    // Total: (item.quantity * parseInt(item.price)).toLocaleString()
+   }
+});
+
+
   const header = [
     { title: "#", style: { width: 10 } },
-    { title: "Name", style: { width: 30 } },
-    { title: "Quantity", style: { width: 20 } },
-    { title: "Price", style: { width: 20 } },
-    { title: "Discount", style: { width: 20 } },
+    { title: "Description", style: { width: 80 } },
+    { title: "Quantity", style: { width: 10 } },
+    { title: "Price", style: { width: 10 } },
+    { title: "Discount", style: { width: 10 } },
   
   ]
   //
   // Add items grid
-  const columns = ['ID', 'Item', 'Quantity', 'Price', 'UOM'];
+  const columns = ['ID', 'Description', 'Qtn', 'UoM', 'Pack', 'UoM', 'Price', 'Total (Rs)'];
   const data = tableData;
 
   doc.autoTable({
     head: [columns],
-    body: tableData.map(x => ({
-      id: x.id,
-      name: x.name,
-      quantity: x.quantity,
-      price: x.price.toLocaleString(),
-      type: x.type,
+    body: result.map((x, index) => ({
+      id: index,
+      name: x.Description,
+      quantity: x.Quantity,
+      type: x.UnitOfMeasurement,
+      than: x.UnitOfMeasurement === "meter" ?  x.Than : 1,
+      uom: x.UnitOfMeasurement === "meter" ? 'Th' : x.UnitOfMeasurement,
+      price: x.Price,
+      total: x.Total,
     })).map(row => {
-      console.log('row: ', row);
       return Object.values(row)
     }),
-    startY: 25, // Adjust the starting position based on your header size
+    startY: 50, // Adjust the starting position based on your header size
     // theme: 'grid', // Choose a table theme (optional)
 
   });
 
   // Add pricing information
-  const grandTotal = calculateGrandTotal().toLocaleString()
-  doc.text(`Grand Total: ${grandTotal} pkr`, 150, doc.autoTable.previous.finalY + 10);
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'italic');
+  doc.setTextColor(80); // Reset text color
+  let grandTotal =  calculateGrandTotal()?.toLocaleString();
+  doc.text(`Grand Total: ${grandTotal} pkr`, 140, doc.autoTable.previous.finalY + 10);
 
   // Add precautions and signature
   // doc.text('Precautions:', 20, doc.autoTable.previous.finalY + 40);
@@ -243,10 +219,12 @@ const UserDashboard = () => {
   // doc.text('2. Payment is due within 30 days.', 20, doc.autoTable.previous.finalY + 50);
 
   // Add signature line
+  doc.setFontSize(11);
   doc.text('Signature', 20, doc.autoTable.previous.finalY + 60);
+  doc.text('Cash Received By: ', 20, doc.autoTable.previous.finalY + 70);
 
 
-  return doc.save('invoice.pdf');
+  return doc.save(`${customerName}-${invoiceDate}.pdf`);
   };
 
   //
@@ -257,7 +235,7 @@ const UserDashboard = () => {
     setTableData(updatedData);
   };
   const calculateGrandTotal = () => {
-    return tableData.reduce((total, item) => total + item.price * item.quantity, 0);
+    return tableData.reduce((total, item) => total + item.price * (item.quantity * item.than), 0);
   };
   const updateItem = (id) => {
       setOpenBillingModal(true);
@@ -283,7 +261,10 @@ const UserDashboard = () => {
   const performTransaction = async () => {
     try {
       let _transactions = {
-        items: tableData,
+        items: tableData?.map(x => ({
+          ...x,
+          quantity: x?.quantity * x?.than,
+        })),
         grandTotal: calculateGrandTotal(),
         customerName: customerName
       }
@@ -297,9 +278,6 @@ const UserDashboard = () => {
         body: JSON.stringify(_transactions),
       });
       if (response.ok) {
-        setTableData([])
-        setThan(1);
-        setCustomerName("")
       }else{
         throw new Error("Something went wrong!");
       }
@@ -312,13 +290,27 @@ const UserDashboard = () => {
 
     
   }
+  const clearData = () => {
+    setTableData([])
+    setThan(1);
+    setSelectedItem(null)
+    setCustomerName("")
+    setContact("")
+    setCnic("")
+    setRate("")
+    setDiscount("")
+    setQuantity("")
+  }
   const onlyPerformTransaction = async () => {
     performTransaction();
+    clearData();
     setOpenPDFDialog(false);
+    
   }
   const handleTransactionAndPDF = async () => {
     await performTransaction();
     generatePDF();
+    clearData();
     setOpenPDFDialog(false);
   }
   
@@ -350,12 +342,12 @@ const UserDashboard = () => {
       },
     });
     const _transactions = await response?.json()
-    console.log('_transactions: ', _transactions);
     
   }
   useEffect(()=> {
     fetchCategories();
     fetchTransactions();
+    // setInvoiceDate(moment().format('DD-MM-YYYY'))
   },[])
   const CategoryLabels = {
     meter: "Meters",
@@ -364,45 +356,91 @@ const UserDashboard = () => {
     set: "Sets",
     piece: "Pieces"
   }
+
   return (
     <div style={{
             margin: "10px"
     }}>
-      <ColumnSection>
+      <Box m="20px">
+        <Header title="Mahmood Dari House"/>
+      </Box>
+      <RowSection border>
+          <TextField
+            sx={{
+                width: "30%",
+            }}
+            size='small'
+            label="Customer Name"
+            value={customerName}
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => setCustomerName(e.target.value)}
+          />
+          <TextField
+            sx={{
+                width: "30%",
+            }}
+            size='small'
+            label="Customer CNIC"
+            value={cnic}
+            InputLabelProps={{ shrink: true }}
+            onChange={(e) => setCnic(e.target.value)}
+          />
+          <TextField
+            sx={{
+                width: "30%",
+            }}
+            size='small'
+            label="Contact No:"
+            InputLabelProps={{ shrink: true }}
+            value={contact}
+            onChange={(e) => setContact(e.target.value)}
+          />
+          <TextField
+            sx={{
+                width: "30%",
+            }}
+            type="date"
+            InputLabelProps={{ shrink: true }}
+            size='small'
+            label="Invoice Date"
+            value={invoiceDate}
+            // onChange={(e) => setInvoiceDate(e.target.value)}
+          />
+      </RowSection>
+      <RowSection>
         <Autocomplete
           sx={{
-              width: "40%",
-              marginBottom: "10px"
+              width: "70%",
           }}
           size='small'
           options={categories} // Replace with your actual options
           getOptionLabel={(option) => option.name}
           value={selectedItem}
           onChange={(event, newValue) => setSelectedItem(newValue)}
-          renderInput={(params) => <TextField {...params} label="Select Item" />}
+          renderInput={(params) => <TextField  {...params} InputLabelProps={{ shrink: true }}  label="Select Item" />}
         />
 
         <TextField
           sx={{
-              width: "40%",
-              marginBottom: "10px"
+              width: "30%",
           }}
           type="number"
           size='small'
-          label={CategoryLabels?.[selectedItem?.type] || "Quantity"} 
+          label={CategoryLabels?.[selectedItem?.type] ? `Quantity (${CategoryLabels?.[selectedItem?.type]}) `  :  "Quantity"} 
           value={quantity}
+          InputLabelProps={{ shrink: true }}
           onChange={(e) => setQuantity(e.target.value)}
         />
-        <RowSection>
-          <TextField
+         
+        <TextField
           sx={{
-              width: "40%",
-              marginBottom: "10px"
+              width: "15%",
           }}
           type="number"
           size='small'
           label={"Packing (Th)"} 
           value={than}
+          InputLabelProps={{ shrink: true }}
           onChange={(e) => {
             if(e.target.value <=0)
               setThan(1);
@@ -410,31 +448,45 @@ const UserDashboard = () => {
             setThan(e.target.value)
           }}
         />
+        <TextField
+          sx={{
+              width: "30%",
+          }}
+          type="number"
+          size='small'
+          label={"Price"} 
+          value={rate}
+          InputLabelProps={{ shrink: true }}
+          onChange={(e) => setRate(e.target.value)}
+        />
+        <TextField
+          sx={{
+              width: "30%",
+          }}
+          type="number"
+          size='small'
+          label={"Discount"} 
+          value={discount}
+          InputLabelProps={{ shrink: true }}
+          onChange={(e) => setDiscount(e.target.value)}
+        />
+        
         <Button disabled={ _.isEmpty(selectedItem) || _.isEmpty(quantity)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
           Add
         </Button>
       </RowSection>
-      </ColumnSection>
       
-      <FooterSection>
-          <TextField
-            sx={{
-                width: "40%",
-                marginBottom: "10px"
-            }}
-            size='small'
-            label="Customer Name"
-            value={customerName}
-            onChange={(e) => setCustomerName(e.target.value)}
-          />
-       </FooterSection>
+      
 
       <Table sx={{ maxHeight: "100vh", maxHeight: "100vh", overflowY: "scroll"}}>
-        <TableHead>
+        <TableHead style={{
+          backgroundColor: "#BFBF00",
+        }}>
           <TableRow>
             <TableCell>Sr. No</TableCell>
             <TableCell>Item Description</TableCell>
             <TableCell>Quantity</TableCell>
+            <TableCell>Packing (Than)</TableCell>
             <TableCell>Rate</TableCell>
             <TableCell>Amount</TableCell>
             <TableCell>Disc%</TableCell>
@@ -448,11 +500,12 @@ const UserDashboard = () => {
             <TableRow key={index}>
               <TableCell>{index + 1}</TableCell>
               <TableCell>{item.name}</TableCell>
-              <TableCell>{item.quantity}</TableCell>
+              <TableCell>{`${item.quantity} ${item?.type}`} </TableCell>
+              <TableCell>{item.than} </TableCell>
               <TableCell>{item.price}</TableCell>
-              <TableCell>{(item.price * item.quantity).toLocaleString()}</TableCell>
+              <TableCell>{(item.price * item.quantity * item.than).toLocaleString()}</TableCell>
               <TableCell>{item.discount}</TableCell>
-              <TableCell>{(item.price * item.quantity - item.price * item.quantity * item.discount/100).toLocaleString()}</TableCell>
+              <TableCell>{((item.price * item.quantity * item.than) - (item.price * item.quantity * item.than  * item.discount/100)).toLocaleString()}</TableCell>
               <TableCell>
                 <EditIcon cursor="pointer" variant="contained" onClick={() => updateItem(item?.id)}/>
               </TableCell>
@@ -466,6 +519,7 @@ const UserDashboard = () => {
             <TableCell colSpan={2}></TableCell>
             <TableCell colSpan={4}>Grand Total</TableCell>
             <TableCell>{calculateGrandTotal().toLocaleString()}</TableCell>
+            <TableCell></TableCell>
             <TableCell></TableCell>
             <TableCell></TableCell>
           </TableRow>
