@@ -169,7 +169,7 @@ const result = Object.values(accumulation || {}).map(item => {
     Than: item.than,
     UnitOfMeasurement: item.type,
     Price: item.price,
-    Total: (parseInt(item.quantity?.reduce((acc, curr) => acc + curr, 0)) *parseInt(item.price))?.toLocaleString(),
+    Total: (parseFloat(item.quantity?.reduce((acc, curr) => acc + curr, 0)) *parseFloat(item.price))?.toLocaleString(),
     // Total: (item.quantity * parseInt(item.price)).toLocaleString()
    }
 });
@@ -303,7 +303,7 @@ const result = Object.values(accumulation || {}).map(item => {
     setQuantity("")
   }
   const onlyPerformTransaction = async () => {
-    performTransaction();
+    await performTransaction();
     clearData();
     setOpenPDFDialog(false);
     
