@@ -124,6 +124,7 @@ const UserDashboard = () => {
   doc.text(`CNIC: ${cnic}`, 16, 30);
   doc.text(`Contact No: ${contact}`, 16, 35);
   doc.text(`Date: ${invoiceDate}`, 16, 40);
+  doc.text(`Shop No: 0324-7416565 `, 16, 45);
 
   doc.setTextColor(0); // Reset text color to black
   doc.setFont('helvetica', 'normal');
@@ -201,7 +202,7 @@ const result = Object.values(accumulation || {}).map(item => {
     })).map(row => {
       return Object.values(row)
     }),
-    startY: 50, // Adjust the starting position based on your header size
+    startY: 55, // Adjust the starting position based on your header size
     // theme: 'grid', // Choose a table theme (optional)
 
   });
