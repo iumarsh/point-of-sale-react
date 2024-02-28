@@ -472,7 +472,7 @@ const result = Object.values(accumulation || {}).map(item => {
           onChange={(e) => setDiscount(e.target.value)}
         />
         
-        <Button disabled={ _.isEmpty(selectedItem) || _.isEmpty(quantity)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
+        <Button disabled={ _.isEmpty(selectedItem)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>
           Add
         </Button>
       </RowSection>
