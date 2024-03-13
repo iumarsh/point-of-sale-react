@@ -52,6 +52,24 @@ const AddCategory = () => {
     }
   };
 
+  // const handleAddCategory = async () => {
+  //   const category = {
+  //           name,
+  //           categoryType: type,
+  //           quantity,
+  //           additionalInfo,
+  //           price,
+            
+  //       }
+  //   const response = await axios.post(`${BASEURL}/api/category`, category, {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   });
+  //   console.log('response: ', response);
+  // }
+
+
   const columns = [
     { field: "id", headerName: "ID" },
     {

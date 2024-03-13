@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { _categoryList } from "../../data/CategoryList";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
@@ -9,11 +9,31 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import moment from 'moment'
 import { BASEURL } from "../../data/endpoints";
+import axios from 'axios'
+
+import DeleteIcon from "@mui/icons-material/DeleteOutlined";
+import EditIcon from "@mui/icons-material/Edit";
 
 const Transactions = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [transactions , setTransactions] = useState([])
+
+  const handleEditTransaction = async (id) => {
+    try {
+      const response = await axios.get(`${BASEURL}/api/transaction/${id}`);
+      console.log('Data ****: ', response.data);
+
+    } catch (error) {
+      
+    }
+    console.log('id: ', id);
+
+  }
+  const handleDeleteTransaction = (id) => {
+    console.log('id: ', id);
+
+  }
   const columns = [
     { field: "_id", headerName: "ID", flex:1},
     {
@@ -39,6 +59,31 @@ const Transactions = () => {
       headerName: "Price",
       type: "number",
       flex: 1,
+    },
+    {
+      field: "actions",
+      type: "actions",
+      headerName: "Actions",
+      width: 100,
+      cellClassName: "actions",
+      getActions: ({ id }) => {
+        // const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
+        return [
+          <GridActionsCellItem
+            icon={<EditIcon />}
+            label="Edit"
+            className="textPrimary"
+            onClick={()=>handleEditTransaction(id)}
+            color="inherit"
+          />,
+          <GridActionsCellItem
+            icon={<DeleteIcon />}
+            label="Delete"
+            onClick={()=> handleDeleteTransaction(id)}
+            color="inherit"
+          />,
+        ];
+      },
     },
     // {
     //   field: "accessLevel",
@@ -97,6 +142,29 @@ const Transactions = () => {
     })) || [])
   }
 
+//  const fetchTransactions = async () => {
+//     const url = new URL('/api/transaction',BASEURL)
+//     // const response = await fetch(url, {
+//       //   method: 'GET',
+//       //   headers: {
+//         //     'Accept': 'application/json',
+//         //   },
+//         // });
+//         // console.log('url: ', url);
+
+//     let result = await axios.get(url)
+//     console.log('Data: ', result);
+//     // const _transactions = await response?.json()
+//     // console.log('_transactions: ', _transactions);
+//     // console.log('_transactions?.transactions: ', _transactions?.transactions);
+//     // setTransactions(_transactions?.transactions?.map(x => ({
+//     //   ...x,
+//     //   items: x?.items?.map( item => item?.name)?.join(", "),
+//     //   createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
+//     //   id: x?._id,
+//     //   price: x?.grandTotal?.toLocaleString()
+   
+//   }
   return (
     <Box m="20px">
       <Header title="Mahmood Dari House" subtitle="Transaction Details" />

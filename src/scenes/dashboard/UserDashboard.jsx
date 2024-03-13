@@ -82,6 +82,7 @@ const UserDashboard = () => {
     if (selectedItem && quantity !== '') {
       const newItem = {
         id: currentId,
+        category: selectedItem?.id,
         name: selectedItem.name,
         quantity: parseFloat(quantity),
         than: than,
@@ -125,6 +126,7 @@ const UserDashboard = () => {
   doc.text(`Contact No: ${contact}`, 16, 35);
   doc.text(`Date: ${invoiceDate}`, 16, 40);
   doc.text(`Shop No: 0324-7416565 `, 16, 45);
+  doc.text('Address: Mehmood Dari Store, Salman Heights, GT. Road near HBL bank Gujranwnala', 16, 50)
 
   doc.setTextColor(0); // Reset text color to black
   doc.setFont('helvetica', 'normal');
@@ -202,7 +204,7 @@ const result = Object.values(accumulation || {}).map(item => {
     })).map(row => {
       return Object.values(row)
     }),
-    startY: 55, // Adjust the starting position based on your header size
+    startY: 60, // Adjust the starting position based on your header size
     // theme: 'grid', // Choose a table theme (optional)
 
   });
@@ -366,6 +368,16 @@ const result = Object.values(accumulation || {}).map(item => {
         <Header title="Mahmood Dari House"/>
       </Box>
       <RowSection border>
+        <TextField
+              sx={{
+                  width: "30%",
+              }}
+              size='small'
+              label="Builty No."
+              value={"5/2 Lari Adda 4 boray"}
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => setCustomerName(e.target.value)}
+            />
           <TextField
             sx={{
                 width: "30%",
