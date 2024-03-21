@@ -13,29 +13,42 @@ import axios from 'axios'
 
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import EditIcon from "@mui/icons-material/Edit";
+import VisibilityIcon from '@mui/icons-material/Visibility';
+
+
+import { useNavigate } from "react-router-dom";
 
 const Transactions = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
-  const [transactions , setTransactions] = useState([])
+  const [transactions, setTransactions] = useState([])
 
-  const handleEditTransaction = async (id) => {
-    try {
-      const response = await axios.get(`${BASEURL}/api/transaction/${id}`);
-      console.log('Data ****: ', response.data);
+  const navigate = useNavigate();
 
-    } catch (error) {
-      
-    }
-    console.log('id: ', id);
-
+  const handleEditTransaction = (id) => {
+    navigate(`/transaction/edit/${id}`)
   }
+  
+  const handleViewTransaction = (id) => {
+    navigate(`/transaction/view/${id}`)
+  }
+
   const handleDeleteTransaction = (id) => {
     console.log('id: ', id);
-
+    deleteTransaction(id)
   }
+
+  const deleteTransaction = async (id) => {
+    try {
+      await axios.delete(`${BASEURL}/api/transaction/${id}`);
+      fetchTransactions()
+    } catch (error) {
+      alert('Error')
+    }
+  }
+
   const columns = [
-    { field: "_id", headerName: "ID", flex:1},
+    { field: "_id", headerName: "ID", flex: 1 },
     {
       field: "items",
       headerName: "Items",
@@ -44,15 +57,15 @@ const Transactions = () => {
       flex: 1.5,
     },
     {
-      field: "createdDate",  
+      field: "createdDate",
       headerName: "Date",
       flex: 1,
     },
     {
-        field: "customerName",
-        headerName: "Customer",
-        type: "number",
-        flex: 1,
+      field: "customerName",
+      headerName: "Customer",
+      type: "number",
+      flex: 1,
     },
     {
       field: "price",
@@ -70,16 +83,25 @@ const Transactions = () => {
         // const isInEditMode = rowModesModel[id]?.mode === GridRowModes.Edit;
         return [
           <GridActionsCellItem
+            icon={<VisibilityIcon />}
+            label="View"
+            className="textPrimary"
+            onClick={() => handleViewTransaction(id)}
+            color="inherit"
+          />
+          ,
+          <GridActionsCellItem
             icon={<EditIcon />}
             label="Edit"
             className="textPrimary"
-            onClick={()=>handleEditTransaction(id)}
+            onClick={() => handleEditTransaction(id)}
             color="inherit"
-          />,
+          />
+          ,
           <GridActionsCellItem
             icon={<DeleteIcon />}
             label="Delete"
-            onClick={()=> handleDeleteTransaction(id)}
+            onClick={() => handleDeleteTransaction(id)}
             color="inherit"
           />,
         ];
@@ -118,12 +140,12 @@ const Transactions = () => {
     // },
   ];
 
-  useEffect(()=> {
+  useEffect(() => {
     fetchTransactions();
-  },[])
+  }, [])
 
   const fetchTransactions = async () => {
-    const url = new URL('/api/transaction',BASEURL)
+    const url = new URL('/api/transaction', BASEURL)
     const response = await fetch(url, {
       method: 'GET',
       headers: {
@@ -135,36 +157,36 @@ const Transactions = () => {
     console.log('_transactions?.transactions: ', _transactions?.transactions);
     setTransactions(_transactions?.transactions?.map(x => ({
       ...x,
-      items: x?.items?.map( item => item?.name)?.join(", "),
+      items: x?.items?.map(item => item?.name)?.join(", "),
       createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
       id: x?._id,
       price: x?.grandTotal?.toLocaleString()
     })) || [])
   }
 
-//  const fetchTransactions = async () => {
-//     const url = new URL('/api/transaction',BASEURL)
-//     // const response = await fetch(url, {
-//       //   method: 'GET',
-//       //   headers: {
-//         //     'Accept': 'application/json',
-//         //   },
-//         // });
-//         // console.log('url: ', url);
+  //  const fetchTransactions = async () => {
+  //     const url = new URL('/api/transaction',BASEURL)
+  //     // const response = await fetch(url, {
+  //       //   method: 'GET',
+  //       //   headers: {
+  //         //     'Accept': 'application/json',
+  //         //   },
+  //         // });
+  //         // console.log('url: ', url);
 
-//     let result = await axios.get(url)
-//     console.log('Data: ', result);
-//     // const _transactions = await response?.json()
-//     // console.log('_transactions: ', _transactions);
-//     // console.log('_transactions?.transactions: ', _transactions?.transactions);
-//     // setTransactions(_transactions?.transactions?.map(x => ({
-//     //   ...x,
-//     //   items: x?.items?.map( item => item?.name)?.join(", "),
-//     //   createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
-//     //   id: x?._id,
-//     //   price: x?.grandTotal?.toLocaleString()
-   
-//   }
+  //     let result = await axios.get(url)
+  //     console.log('Data: ', result);
+  //     // const _transactions = await response?.json()
+  //     // console.log('_transactions: ', _transactions);
+  //     // console.log('_transactions?.transactions: ', _transactions?.transactions);
+  //     // setTransactions(_transactions?.transactions?.map(x => ({
+  //     //   ...x,
+  //     //   items: x?.items?.map( item => item?.name)?.join(", "),
+  //     //   createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
+  //     //   id: x?._id,
+  //     //   price: x?.grandTotal?.toLocaleString()
+
+  //   }
   return (
     <Box m="20px">
       <Header title="Mahmood Dari House" subtitle="Transaction Details" />
