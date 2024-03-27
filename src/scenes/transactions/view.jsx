@@ -46,7 +46,13 @@ const ViewTransaction = () => {
         setContact(transaction?.contact)
         setInvoiceDate(moment.utc(transaction.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS[Z]").format('YYYY-MM-DD'))
         setCustomerName(transaction?.customerName)
-        setTableData(transaction.items !== undefined ? transaction.items : []);
+        setBuilty(transaction?.builty)
+        setContact(transaction?.contact)
+        setCnic(transaction?.cnic)
+        setTableData(transaction.items !== undefined ? transaction?.items?.map(x => ({
+            ...x,
+            quantity: x?.quantity/x?.than
+        })) : []);
     }, [transaction])
 
     const fetchTransaction = async (id) => {
@@ -60,6 +66,7 @@ const ViewTransaction = () => {
     }
 
     const [customerName, setCustomerName] = useState('');
+    const [builty, setBuilty] = useState('')
     const [cnic, setCnic] = useState('');
     const [contact, setContact] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(moment().format('YYYY-MM-DD'));
@@ -219,9 +226,9 @@ const ViewTransaction = () => {
                     }}
                     size='small'
                     label="Builty No."
-                    value={"5/2 Lari Adda 4 boray"}
+                    value={builty}
                     InputLabelProps={{ shrink: true }}
-                    onChange={(e) => setCustomerName(e.target.value)}
+                    onChange={(e) => setBuilty(e.target.value)}
                     disabled
                 />
                 <TextField

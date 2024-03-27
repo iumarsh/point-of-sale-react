@@ -63,7 +63,11 @@ const EditTransaction = () => {
         setContact(transaction?.contact)
         setInvoiceDate(moment.utc(transaction.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS[Z]").format('YYYY-MM-DD'))
         setCustomerName(transaction?.customerName)
-        setTableData(transaction.items !== undefined ? transaction.items : []);
+        setBuilty(transaction?.builty)
+        setTableData(transaction.items !== undefined ? transaction?.items?.map(x => ({
+            ...x,
+            quantity: x?.quantity/x?.than
+        })) : []);
     }, [transaction])
 
     const fetchTransaction = async (id) => {
@@ -77,15 +81,18 @@ const EditTransaction = () => {
     }
 
     const [selectedItem, setSelectedItem] = useState(null);
+    console.log('selectedItem: ', selectedItem);
     const [quantity, setQuantity] = useState('');
     const [than, setThan] = useState(1);
     const [rate, setRate] = useState("")
     const [discount, setDiscount] = useState(0);
     const [customerName, setCustomerName] = useState('');
+    const [builty, setBuilty] = useState("")
     const [cnic, setCnic] = useState('');
     const [contact, setContact] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(moment().format('YYYY-MM-DD'));
     const [tableData, setTableData] = useState([]);
+    console.log('tableData: ', tableData);
     const [deletedItems, setDeletedItems] = useState([]);
     const [openBillingModal, setOpenBillingModal] = useState(false);
     const [updatedItem, setUpdatedItem] = useState({})
@@ -104,8 +111,8 @@ const EditTransaction = () => {
     const handleAdd = () => {
         if (selectedItem && quantity !== '') {
             const newItem = {
-                id: currentId,
-                category: selectedItem?.id,
+                id: selectedItem?.id,
+                category: selectedItem?.id, //need to change
                 name: selectedItem.name,
                 quantity: parseFloat(quantity),
                 than: than,
@@ -123,7 +130,7 @@ const EditTransaction = () => {
         }
     };
     //PDF
-    const generatePDF = () => {
+    const generatePDF = (transactionId = null) => {
 
         const pageSize = { width: 210, height: 297 };
         const doc = new jsPDF({
@@ -144,13 +151,14 @@ const EditTransaction = () => {
         doc.setTextColor(80); // Reset text color
 
         doc.setFontSize(11);
-        doc.text(`Client Name: ${customerName}`, 16, 25);
-        doc.text(`CNIC: ${cnic}`, 16, 30);
-        doc.text(`Contact No: ${contact}`, 16, 35);
-        doc.text(`Date: ${invoiceDate}`, 16, 40);
-        doc.text(`Shop No: 0324-7416565 `, 16, 45);
-        doc.text('Address: Mehmood Dari Store, Salman Heights, GT. Road near HBL bank Gujranwnala', 16, 50)
-
+        doc.text(`Transaction Id: ${transactionId || ""}`, 16, 25);//
+        doc.text(`Client Name: ${customerName}`, 16, 30);
+        doc.text(`CNIC: ${cnic}`, 16, 35);
+        doc.text(`Contact No: ${contact}`, 16, 40);
+        doc.text(`Date: ${invoiceDate}`, 16, 45);
+        doc.text(`Shop No: 0324-7416565 `, 16, 50);
+        doc.text('Address: Mehmood Dari Store, Salman Heights, GT. Road near HBL bank Gujranwnala', 16, 55)
+        doc.text(`Builty: ${builty} `, 16, 60);
         doc.setTextColor(0); // Reset text color to black
         doc.setFont('helvetica', 'normal');
         // doc.text('Address: 123 Main St, City', 14, 45);
@@ -168,7 +176,7 @@ const EditTransaction = () => {
 
         //
         tableData.forEach(item => {
-            const key = `${item.name}-${item.type}`; // Unique key based on name and type
+            const key = `${item?.category?.name || item?.name}-${item?.category?.categoryType || item?.type}`; // Unique key based on name and type
             const repeatedQuantity = Array.from({ length: parseInt(item.than) }, () => item.quantity);
             // const repeatedQuantity = Array(parseInt(item.than)).fill(item.quantity);  // => than times quantity => 2 than and 30m => [30,30]
             if (accumulation[key]) {
@@ -176,10 +184,10 @@ const EditTransaction = () => {
                 accumulation[key].than = parseInt(accumulation[key].than) + parseInt(item.than);
             } else {
                 accumulation[key] = {
-                    name: item.name,
+                    name: item?.category?.name || item?.name,
                     quantity: repeatedQuantity,
                     than: parseInt(item.than), // Convert to integer if needed
-                    type: item.type,
+                    type: item?.category?.categoryType || item?.type,
                     price: item.price,
                     discount: item.discount
                 };
@@ -227,7 +235,7 @@ const EditTransaction = () => {
             })).map(row => {
                 return Object.values(row)
             }),
-            startY: 60, // Adjust the starting position based on your header size
+            startY: 70, // Adjust the starting position based on your header size
             // theme: 'grid', // Choose a table theme (optional)
 
         });
@@ -283,7 +291,7 @@ const EditTransaction = () => {
         }))
         setOpenBillingModal(false)
     }
-    const performTransaction = async () => {
+    const handleTransaction = async (pdfFlag = false) => {
         try {
             let _transactions = {
                 items: tableData?.map(x => ({
@@ -293,17 +301,24 @@ const EditTransaction = () => {
                 grandTotal: calculateGrandTotal(),
                 customerName: customerName,
                 deletedItems: deletedItems,
+                builty: builty,
+                contact: contact,
+                cnic: cnic
             }
 
-            const url = new URL(`/api/transaction/${transactionID}`, BASEURL)
-            const response = await fetch(url, {
-                method: 'PUT',
+
+            //
+            const response = await axios.put(`${BASEURL}/api/transaction/${transactionID}`, _transactions, {
                 headers: {
-                    'Content-Type': 'application/json',
+                  'Content-Type': 'application/json',
                 },
-                body: JSON.stringify(_transactions),
-            });
-            if (response.ok) {
+              });
+            //
+            if (response) {
+                console.log('response: ', response);
+                pdfFlag && generatePDF(response?.data?.transaction?._id)
+                clearData();
+                setOpenPDFDialog(false);
                 navigate('/transactions');
             } else {
                 throw new Error("Something went wrong!");
@@ -327,19 +342,20 @@ const EditTransaction = () => {
         setRate("")
         setDiscount("")
         setQuantity("")
+        setBuilty('')
     }
-    const onlyPerformTransaction = async () => {
-        await performTransaction();
-        clearData();
-        setOpenPDFDialog(false);
+    // const onlyPerformTransaction = async () => {
+    //     await performTransaction();
+    //     clearData();
+    //     setOpenPDFDialog(false);
 
-    }
-    const handleTransactionAndPDF = async () => {
-        await performTransaction();
-        generatePDF();
-        clearData();
-        setOpenPDFDialog(false);
-    }
+    // }
+    // const handleTransactionAndPDF = async () => {
+    //     await performTransaction();
+    //     generatePDF();
+    //     clearData();
+    //     setOpenPDFDialog(false);
+    // }
 
     const fetchCategories = async () => {
         const url = new URL('/api/category', BASEURL)
@@ -384,9 +400,9 @@ const EditTransaction = () => {
                     }}
                     size='small'
                     label="Builty No."
-                    value={"5/2 Lari Adda 4 boray"}
+                    value={builty}
                     InputLabelProps={{ shrink: true }}
-                    onChange={(e) => setCustomerName(e.target.value)}
+                    onChange={(e) => setBuilty(e.target.value)}
                 />
                 <TextField
                     sx={{
@@ -568,8 +584,8 @@ const EditTransaction = () => {
                 open={openPDFDialog}
                 desc="Do you want the PDF as well"
                 title="Transaction Dialog"
-                handleClose={onlyPerformTransaction}
-                submitHandler={handleTransactionAndPDF} />
+                handleClose={handleTransaction}
+                submitHandler={() =>handleTransaction(true)} />
         </div>
     );
 };

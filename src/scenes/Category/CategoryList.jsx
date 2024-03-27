@@ -39,6 +39,7 @@ const CategoryList = () => {
   
       if (response.ok) {
         console.log('Category deleted successfully');
+        fetchCategories();
       } else {
         const error = await response.json();
         console.error('Error deleting category:', error);

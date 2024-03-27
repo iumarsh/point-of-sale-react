@@ -22,6 +22,8 @@ const Transactions = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
   const [transactions, setTransactions] = useState([])
+  const [loading, setLoading] = useState(false);
+  console.log('transactions: ', transactions);
 
   const navigate = useNavigate();
 
@@ -145,23 +147,29 @@ const Transactions = () => {
   }, [])
 
   const fetchTransactions = async () => {
-    const url = new URL('/api/transaction', BASEURL)
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    const _transactions = await response?.json()
-    console.log('_transactions: ', _transactions);
-    console.log('_transactions?.transactions: ', _transactions?.transactions);
-    setTransactions(_transactions?.transactions?.map(x => ({
-      ...x,
-      items: x?.items?.map(item => item?.name)?.join(", "),
-      createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
-      id: x?._id,
-      price: x?.grandTotal?.toLocaleString()
-    })) || [])
+    try {
+      setLoading(true)
+      const url = new URL('/api/transaction', BASEURL)
+      const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      const _transactions = await response?.json()
+      console.log('_transactions: ', _transactions);
+      console.log('_transactions?.transactions: ', _transactions?.transactions);
+      setTransactions(_transactions?.transactions?.map(x => ({
+        ...x,
+        items: x?.items?.map(item => item?.category?.name)?.join(", "),
+        createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
+        id: x?._id,
+        price: x?.grandTotal?.toLocaleString()
+      })) || [])
+      setLoading(false)
+    } catch (error) {
+      setLoading(false)
+    }
   }
 
   //  const fetchTransactions = async () => {
@@ -219,7 +227,7 @@ const Transactions = () => {
           },
         }}
       >
-        <DataGrid checkboxSelection rows={transactions} columns={columns} />
+        <DataGrid loading={loading} checkboxSelection rows={transactions} columns={columns} />
       </Box>
     </Box>
   );
