@@ -81,7 +81,6 @@ const EditTransaction = () => {
     }
 
     const [selectedItem, setSelectedItem] = useState(null);
-    console.log('selectedItem: ', selectedItem);
     const [quantity, setQuantity] = useState('');
     const [than, setThan] = useState(1);
     const [rate, setRate] = useState("")
@@ -92,13 +91,13 @@ const EditTransaction = () => {
     const [contact, setContact] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(moment().format('YYYY-MM-DD'));
     const [tableData, setTableData] = useState([]);
-    console.log('tableData: ', tableData);
     const [deletedItems, setDeletedItems] = useState([]);
     const [openBillingModal, setOpenBillingModal] = useState(false);
     const [updatedItem, setUpdatedItem] = useState({})
     const [currentId, setCurrentId] = useState(1)
     const [categories, setCategories] = useState([])
     const [openPDFDialog, setOpenPDFDialog] = useState(false)
+    const [transactionLoading, setTransactionLoading] = useState(false)
 
     useEffect(() => {
         if (selectedItem) {
@@ -293,6 +292,7 @@ const EditTransaction = () => {
     }
     const handleTransaction = async (pdfFlag = false) => {
         try {
+            setTransactionLoading(true)
             let _transactions = {
                 items: tableData?.map(x => ({
                     ...x,
@@ -320,11 +320,14 @@ const EditTransaction = () => {
                 clearData();
                 setOpenPDFDialog(false);
                 navigate('/transactions');
+                setTransactionLoading(false)
             } else {
+                setTransactionLoading(false)
                 throw new Error("Something went wrong!");
             }
 
         } catch (error) {
+            setTransactionLoading(false)
             alert(error)
             console.log('error: ', error);
         }
@@ -582,6 +585,7 @@ const EditTransaction = () => {
             />
             <ActionDialog
                 open={openPDFDialog}
+                disabled={transactionLoading}
                 desc="Do you want the PDF as well"
                 title="Transaction Dialog"
                 handleClose={handleTransaction}

@@ -56,6 +56,7 @@ const UserDashboard = () => {
   const [builty, setBuilty] = useState('')
   const [cnic, setCnic] = useState('');
   const [contact, setContact] = useState('');
+  const [transactionLoading, setTransactionLoading] = useState(false)
   // const [invoiceDate, setInvoiceDate] = useState(moment().format('DD-MM-YYYY'));
   const [tableData, setTableData] = useState([]);
   const [openBillingModal,setOpenBillingModal] = useState(false);
@@ -340,6 +341,7 @@ const result = Object.values(accumulation || {}).map(item => {
   // }
   const handleTransaction = async (triggerPdf = false) => {
     try {
+      setTransactionLoading(true)
       let _transactions = {
         items: tableData?.map(x => ({
           ...x,
@@ -365,10 +367,13 @@ const result = Object.values(accumulation || {}).map(item => {
         triggerPdf && generatePDF(response?.data?.transaction?._id);
         clearData();
         setOpenPDFDialog(false);
+        setTransactionLoading(false)
       }else{
+        setTransactionLoading(false)
         throw new Error("Something went wrong!");
       }
     } catch (error) {
+      setTransactionLoading(false)
       alert(error)
       console.log('error: ', error);
     }
@@ -615,6 +620,7 @@ const result = Object.values(accumulation || {}).map(item => {
         />
         <ActionDialog 
           open={openPDFDialog} 
+          disabled = {transactionLoading}
           desc="Do you want the PDF as well" 
           title="Transaction Dialog" 
           handleClose={handleTransaction} 

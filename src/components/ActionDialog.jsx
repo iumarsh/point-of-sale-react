@@ -12,7 +12,8 @@ export default function ActionDialog({
     handleClose,
     title,
     submitHandler,
-    desc
+    desc,
+    disabled = false,
 }) {
 
   return (
@@ -34,8 +35,8 @@ export default function ActionDialog({
         </DialogContent>
         <Divider/>
         <DialogActions>
-          <Button onClick={handleClose}>No</Button>
-          <Button onClick={submitHandler} autoFocus>
+          <Button disabled={disabled} onClick={handleClose}>No</Button>
+          <Button disabled={disabled} onClick={submitHandler} autoFocus>
             Yes
           </Button>
         </DialogActions>
