@@ -33,3 +33,12 @@ body,
 ::-webkit-scrollbar-thumb:hover {
   background: #555;
 }
+
+
+.view-transaction-fields label,
+.view-transaction-fields input,
+.view-transaction-fields div {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+  opacity: 1 !important;
+}

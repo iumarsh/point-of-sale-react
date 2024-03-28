@@ -20,6 +20,7 @@ import { BASEURL } from '../../data/endpoints';
 import _ from "lodash"
 import Header from '../../components/Header';
 import moment from 'moment'
+import axios from 'axios';
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
@@ -52,8 +53,10 @@ const UserDashboard = () => {
   const [rate, setRate] = useState("")
   const [discount, setDiscount] = useState(0);
   const [customerName, setCustomerName] = useState('');
+  const [builty, setBuilty] = useState('')
   const [cnic, setCnic] = useState('');
   const [contact, setContact] = useState('');
+  const [transactionLoading, setTransactionLoading] = useState(false)
   // const [invoiceDate, setInvoiceDate] = useState(moment().format('DD-MM-YYYY'));
   const [tableData, setTableData] = useState([]);
   const [openBillingModal,setOpenBillingModal] = useState(false);
@@ -61,6 +64,7 @@ const UserDashboard = () => {
   const [currentId, setCurrentId] = useState(1)
   const [categories,setCategories] = useState([])
   const [openPDFDialog, setOpenPDFDialog] = useState(false)
+  const [transactionId, setTransactionId] = useState('')
 
   const invoiceDate = moment().format('YYYY-MM-DD');
 
@@ -82,6 +86,7 @@ const UserDashboard = () => {
     if (selectedItem && quantity !== '') {
       const newItem = {
         id: currentId,
+        category: selectedItem?.id,
         name: selectedItem.name,
         quantity: parseFloat(quantity),
         than: than,
@@ -99,7 +104,7 @@ const UserDashboard = () => {
     }
   };
   //PDF
-  const generatePDF = () => {
+  const generatePDF = (transactionId = null) => {
 
   const pageSize = { width: 210, height: 297 }; 
   const doc = new jsPDF({
@@ -120,11 +125,14 @@ const UserDashboard = () => {
   doc.setTextColor(80); // Reset text color
   
   doc.setFontSize(11);
-  doc.text(`Client Name: ${customerName}`, 16, 25);
-  doc.text(`CNIC: ${cnic}`, 16, 30);
-  doc.text(`Contact No: ${contact}`, 16, 35);
-  doc.text(`Date: ${invoiceDate}`, 16, 40);
-  doc.text(`Shop No: 0324-7416565 `, 16, 45);
+  doc.text(`Transaction Id: ${transactionId || ""}`, 16, 25);//
+  doc.text(`Client Name: ${customerName}`, 16, 30);
+  doc.text(`CNIC: ${cnic}`, 16, 35);
+  doc.text(`Contact No: ${contact}`, 16, 40);
+  doc.text(`Date: ${invoiceDate}`, 16, 45);
+  doc.text(`Shop No: 0324-7416565 `, 16, 50);
+  doc.text('Address: Mehmood Dari Store, Salman Heights, GT. Road near HBL bank Gujranwnala', 16, 55)
+  doc.text(`Builty: ${builty}`, 16, 60)
 
   doc.setTextColor(0); // Reset text color to black
   doc.setFont('helvetica', 'normal');
@@ -202,7 +210,7 @@ const result = Object.values(accumulation || {}).map(item => {
     })).map(row => {
       return Object.values(row)
     }),
-    startY: 55, // Adjust the starting position based on your header size
+    startY: 70, // Adjust the starting position based on your header size
     // theme: 'grid', // Choose a table theme (optional)
 
   });
@@ -236,7 +244,7 @@ const result = Object.values(accumulation || {}).map(item => {
     setTableData(updatedData);
   };
   const calculateGrandTotal = () => {
-    return tableData.reduce((total, item) => total + item.price * (item.quantity * item.than), 0);
+    return tableData.reduce((total, item) => total + item.price * (item.quantity * parseInt(item.than)), 0);
   };
   const updateItem = (id) => {
       setOpenBillingModal(true);
@@ -259,38 +267,60 @@ const result = Object.values(accumulation || {}).map(item => {
       }))
       setOpenBillingModal(false)
   }
-  const performTransaction = async () => {
-    try {
-      let _transactions = {
-        items: tableData?.map(x => ({
-          ...x,
-          quantity: x?.quantity * x?.than,
-        })),
-        grandTotal: calculateGrandTotal(),
-        customerName: customerName
-      }
+  // const performTransaction = async () => {
+  //   try {
+  //     let _transactions = {
+  //       items: tableData?.map(x => ({
+  //         ...x,
+  //         quantity: x?.quantity * x?.than,
+  //       })),
+  //       grandTotal: calculateGrandTotal(),
+  //       customerName: customerName
+  //     }
   
-      const url = new URL('/api/transaction',BASEURL)
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(_transactions),
-      });
-      if (response.ok) {
-      }else{
-        throw new Error("Something went wrong!");
-      }
+  //     const response = await axios.post(`${BASEURL}/api/transaction`, _transactions, {
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //     });
+  //     console.log('response: ', response);
+  //     if (response) {
+        
+  //       console.log('response: ', response);
+  //       console.log('response?.data?.transaction?._id: ', response?.data?.transaction?._id);
+  //       setTransactionId(response?.data?.transaction?._id)
+  //     }else{
+  //       throw new Error("Something went wrong!");
+  //     }
 
-    } catch (error) {
-      alert(error)
-      console.log('error: ', error);
-    }
+  //   } catch (error) {
+  //     alert(error)
+  //     console.log('error: ', error);
+  //   }
     
 
     
-  }
+  // }
+
+  //
+
+    // const handleAddCategory = async () => {
+  //   const category = {
+  //           name,
+  //           categoryType: type,
+  //           quantity,
+  //           additionalInfo,
+  //           price,
+            
+  //       }
+  //   const response = await axios.post(`${BASEURL}/api/category`, category, {
+  //     headers: {
+  //       'Content-Type': 'application/json',
+  //     },
+  //   });
+  //   console.log('response: ', response);
+  // }
+  //
   const clearData = () => {
     setTableData([])
     setThan(1);
@@ -301,18 +331,54 @@ const result = Object.values(accumulation || {}).map(item => {
     setRate("")
     setDiscount("")
     setQuantity("")
+    setBuilty("")
   }
-  const onlyPerformTransaction = async () => {
-    await performTransaction();
-    clearData();
-    setOpenPDFDialog(false);
+  // const onlyPerformTransaction = async () => {
+  //   await performTransaction();
+  //   clearData();
+  //   setOpenPDFDialog(false);
     
-  }
-  const handleTransactionAndPDF = async () => {
-    await performTransaction();
-    generatePDF();
-    clearData();
-    setOpenPDFDialog(false);
+  // }
+  const handleTransaction = async (triggerPdf = false) => {
+    try {
+      setTransactionLoading(true)
+      let _transactions = {
+        items: tableData?.map(x => ({
+          ...x,
+          quantity: x?.quantity * x?.than,
+        })),
+        grandTotal: calculateGrandTotal(),
+        customerName: customerName,
+        builty: builty,
+        cnic: cnic,
+        contact: contact,
+      }
+  
+      const response = await axios.post(`${BASEURL}/api/transaction`, _transactions, {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+      console.log('response: ', response);
+      if (response) {
+        
+        console.log('response: ', response);
+        console.log('response?.data?.transaction?._id: ', response?.data?.transaction?._id);
+        triggerPdf && generatePDF(response?.data?.transaction?._id);
+        clearData();
+        setOpenPDFDialog(false);
+        setTransactionLoading(false)
+      }else{
+        setTransactionLoading(false)
+        throw new Error("Something went wrong!");
+      }
+    } catch (error) {
+      setTransactionLoading(false)
+      alert(error)
+      console.log('error: ', error);
+    }
+    
+
   }
   
   const fetchCategories = async () => {
@@ -366,6 +432,16 @@ const result = Object.values(accumulation || {}).map(item => {
         <Header title="Mahmood Dari House"/>
       </Box>
       <RowSection border>
+        <TextField
+              sx={{
+                  width: "30%",
+              }}
+              size='small'
+              label="Builty No."
+              value={builty}
+              InputLabelProps={{ shrink: true }}
+              onChange={(e) => setBuilty(e.target.value)}
+            />
           <TextField
             sx={{
                 width: "30%",
@@ -544,10 +620,11 @@ const result = Object.values(accumulation || {}).map(item => {
         />
         <ActionDialog 
           open={openPDFDialog} 
+          disabled = {transactionLoading}
           desc="Do you want the PDF as well" 
           title="Transaction Dialog" 
-          handleClose={onlyPerformTransaction} 
-          submitHandler={handleTransactionAndPDF}/>
+          handleClose={handleTransaction} 
+          submitHandler={() => handleTransaction(true)}/>
     </div>
   );
 };

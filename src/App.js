@@ -20,11 +20,13 @@ import { CssBaseline, ThemeProvider } from "@mui/material";
 import { ColorModeContext, useMode } from "./theme";
 import Calendar from "./scenes/calendar/calendar";
 
+import EditTransaction from "./scenes/transactions/edit";
+import ViewTransaction from "./scenes/transactions/view";
+
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const regularUser = true
-  console.log('isSidebar: ', isSidebar);
   return (
     <ColorModeContext.Provider value={colorMode}>
       <ThemeProvider theme={theme}>
@@ -36,7 +38,7 @@ function App() {
               !regularUser && <Topbar setIsSidebar={setIsSidebar} />
             }
             <Routes>
-              <Route path="/" element={regularUser ? <UserDashboard/> : <Dashboard />} />
+              <Route path="/" element={regularUser ? <UserDashboard /> : <Dashboard />} />
               <Route path="/team" element={<Team />} />
               <Route path="/category" element={<AddCategory />} />
               <Route path="/categoryList" element={<CategoryList />} />
@@ -50,6 +52,8 @@ function App() {
               <Route path="/faq" element={<FAQ />} />
               <Route path="/calendar" element={<Calendar />} />
               <Route path="/geography" element={<Geography />} />
+              <Route path="/transaction/edit/:transactionID" element={<EditTransaction />} />
+              <Route path="/transaction/view/:transactionID" element={<ViewTransaction />} />
             </Routes>
           </main>
         </div>
