@@ -168,7 +168,6 @@ const UserDashboard = () => {
         };
     }
 });
-
 // Create the desired output format
 const result = Object.values(accumulation || {}).map(item => {
    return {
@@ -203,7 +202,7 @@ const result = Object.values(accumulation || {}).map(item => {
       name: x.Description,
       quantity: x.Quantity,
       type: x.UnitOfMeasurement,
-      than: x.UnitOfMeasurement === "meter" ?  x.Than : 1,
+      than: x.UnitOfMeasurement === "meter" ?  x.Than : x.Quantity,
       uom: x.UnitOfMeasurement === "meter" ? 'Th' : x.UnitOfMeasurement,
       price: x.Price,
       total: x.Total,
@@ -228,7 +227,9 @@ const result = Object.values(accumulation || {}).map(item => {
   // doc.text('2. Payment is due within 30 days.', 20, doc.autoTable.previous.finalY + 50);
 
   // Add signature line
+  let _packTotal = result.reduce((total, item) => total + (item.UnitOfMeasurement === "meter" ? parseInt(item.Than) : parseInt(item.Quantity)), 0);
   doc.setFontSize(11);
+  doc.text(`Pack Total: ${_packTotal}`, 20, doc.autoTable.previous.finalY + 35);
   doc.text('Signature', 20, doc.autoTable.previous.finalY + 60);
   doc.text('Cash Received By: ', 20, doc.autoTable.previous.finalY + 70);
 
