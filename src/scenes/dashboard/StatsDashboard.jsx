@@ -1,10 +1,9 @@
 import { Box, Button, IconButton, Typography, useTheme } from "@mui/material";
 import { tokens } from "../../theme";
 import { mockTransactions } from "../../data/mockData";
-import DownloadOutlinedIcon from "@mui/icons-material/DownloadOutlined";
-import EmailIcon from "@mui/icons-material/Email";
-import PointOfSaleIcon from "@mui/icons-material/PointOfSale";
-import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import PaidIcon from '@mui/icons-material/Paid';
+import ReceiptIcon from '@mui/icons-material/Receipt';
+import PointOfSaleIcon from '@mui/icons-material/PointOfSale';
 import TrafficIcon from "@mui/icons-material/Traffic";
 import Header from "../../components/Header";
 import LineChart from "../../components/LineChart";
@@ -12,31 +11,93 @@ import GeographyChart from "../../components/GeographyChart";
 import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+import { useEffect, useState } from "react";
+import moment from "moment";
+import { BASEURL } from "../../data/endpoints";
 
-const Dashboard = () => {
+const StatsDashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+  const [loading, setLoading] = useState(false);
+  const [transactions, setTransactions] = useState([])
+  console.log('transactions: ', transactions);
+  const [transactionCount, setTransactionCount] = useState({
+    total: 0,
+    monthly: 0,
+    daily: 0
+  })
 
+const fetchTransactions = async () => {
+  try {
+    setLoading(true)
+    const url = new URL('/api/transaction', BASEURL)
+    const response = await fetch(url, {
+      method: 'GET',
+      headers: {
+        'Accept': 'application/json',
+      },
+    });
+    const _transactions = await response?.json()
+    console.log('_transactions: ', _transactions);
+    const totalGrandTotal = _transactions?.transactions?.reduce((total, transaction) => total + transaction?.grandTotal, 0);
+    console.log('totalGrandTotal: ', totalGrandTotal);
+    setTransactions(_transactions?.transactions?.slice(0, 6)?.map(x => ({
+      ...x,
+      items: x?.items?.map(item => item?.category?.name)?.join(", "),
+      createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
+      id: x?._id,
+      price: x?.grandTotal?.toLocaleString()
+    })) || [])
+    setTransactionCount({
+      total: _transactions.total,
+      monthly: _transactions.monthly,
+      daily: _transactions.daily,
+      revenue: totalGrandTotal,
+    })
+
+    ////  Test
+      // Flatten the items array within each transaction
+      const allItems = _transactions?.transactions.flatMap(transaction => transaction.items);
+      console.log('allItems: ', allItems);
+
+      // Group items by category name and sum up quantities sold for each category
+      const categoryQuantities = allItems.reduce((acc, item) => {
+          const categoryName = item.category.name;
+          acc[categoryName] = (acc[categoryName] || 0) + item.quantity;
+          return acc;
+      }, {});
+
+      // Convert categoryQuantities object to an array of objects
+      const categoryArray = Object.keys(categoryQuantities).map(category => ({
+          name: category,
+          quantity: categoryQuantities[category]
+      }));
+
+      // Sort categories based on total quantity sold in descending order
+      categoryArray.sort((a, b) => b.quantity - a.quantity);
+
+      // Take the top 3 performing categories
+      const top3PerformingCategories = categoryArray.slice(0, 3);
+
+      console.log("Top 3 performing categories:", top3PerformingCategories);
+
+    ///
+    setLoading(false)
+  } catch (error) {
+    setLoading(false)
+  }
+
+}
+
+useEffect(()=> {
+    fetchTransactions();
+},[])
   return (
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
 
-        <Box>
-          <Button
-            sx={{
-              backgroundColor: colors.blueAccent[700],
-              color: colors.grey[100],
-              fontSize: "14px",
-              fontWeight: "bold",
-              padding: "10px 20px",
-            }}
-          >
-            <DownloadOutlinedIcon sx={{ mr: "10px" }} />
-            Download Reports
-          </Button>
-        </Box>
       </Box>
 
       {/* GRID & CHARTS */}
@@ -55,12 +116,12 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title={`${transactionCount.total?.toLocaleString()}`}
+            subtitle="Total Transactions"
             progress="0.75"
             increase="+14%"
             icon={
-              <EmailIcon
+              <PaidIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -79,7 +140,7 @@ const Dashboard = () => {
             progress="0.50"
             increase="+21%"
             icon={
-              <PointOfSaleIcon
+              <ReceiptIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
@@ -98,11 +159,12 @@ const Dashboard = () => {
             progress="0.30"
             increase="+5%"
             icon={
-              <PersonAddIcon
+              <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
+          
         </Box>
         <Box
           gridColumn="span 3"
@@ -112,18 +174,18 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
-            progress="0.80"
-            increase="+43%"
+            title="32,441"
+            subtitle="New Clients"
+            progress="0.30"
+            increase="+5%"
             icon={
-              <TrafficIcon
+              <PointOfSaleIcon
                 sx={{ color: colors.greenAccent[600], fontSize: "26px" }}
               />
             }
           />
+          
         </Box>
-
         {/* ROW 2 */}
         <Box
           gridColumn="span 8"
@@ -150,26 +212,20 @@ const Dashboard = () => {
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+              {`${ transactionCount.revenue?.toLocaleString()} PKR`}
               </Typography>
-            </Box>
-            <Box>
-              <IconButton>
-                <DownloadOutlinedIcon
-                  sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
-                />
-              </IconButton>
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
-            <LineChart isDashboard={true} />
+           <BarChart isDashboard={true} />
           </Box>
         </Box>
         <Box
           gridColumn="span 4"
-          gridRow="span 2"
+          gridRow="span 3"
           backgroundColor={colors.primary[400]}
           overflow="auto"
+          
         >
           <Box
             display="flex"
@@ -183,9 +239,9 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {transactions.map((transaction, i) => (
             <Box
-              key={`${transaction.txId}-${i}`}
+              key={`${transaction.id}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -198,10 +254,10 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
+                  {transaction.id}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {transaction.customerName}
                 </Typography>
               </Box>
               <Box color={colors.grey[100]}>{transaction.date}</Box>
@@ -210,14 +266,14 @@ const Dashboard = () => {
                 p="5px 10px"
                 borderRadius="4px"
               >
-                ${transaction.cost}
+                {transaction.price}
               </Box>
             </Box>
           ))}
         </Box>
 
         {/* ROW 3 */}
-        <Box
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -242,8 +298,8 @@ const Dashboard = () => {
             </Typography>
             <Typography>Includes extra misc expenditures and costs</Typography>
           </Box>
-        </Box>
-        <Box
+        </Box> */}
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -258,8 +314,8 @@ const Dashboard = () => {
           <Box height="250px" mt="-20px">
             <BarChart isDashboard={true} />
           </Box>
-        </Box>
-        <Box
+        </Box> */}
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -275,10 +331,10 @@ const Dashboard = () => {
           <Box height="200px">
             <GeographyChart isDashboard={true} />
           </Box>
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   );
 };
 
-export default Dashboard;
+export default StatsDashboard;

@@ -142,9 +142,6 @@ const Transactions = () => {
     // },
   ];
 
-  useEffect(() => {
-    fetchTransactions();
-  }, [])
 
   const fetchTransactions = async () => {
     try {
@@ -157,8 +154,6 @@ const Transactions = () => {
         },
       });
       const _transactions = await response?.json()
-      console.log('_transactions: ', _transactions);
-      console.log('_transactions?.transactions: ', _transactions?.transactions);
       setTransactions(_transactions?.transactions?.map(x => ({
         ...x,
         items: x?.items?.map(item => item?.category?.name)?.join(", "),
@@ -167,10 +162,16 @@ const Transactions = () => {
         price: x?.grandTotal?.toLocaleString()
       })) || [])
       setLoading(false)
+
+      
     } catch (error) {
       setLoading(false)
     }
   }
+
+  useEffect(()=> {
+    fetchTransactions();
+  },[])
 
   //  const fetchTransactions = async () => {
   //     const url = new URL('/api/transaction',BASEURL)

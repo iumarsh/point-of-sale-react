@@ -319,18 +319,18 @@ export const mockTransactions = [
 
 export const mockBarData = [
   {
-    country: "AD",
+    category: "ABC Frill",
     "hot dog": 137,
     "hot dogColor": "hsl(229, 70%, 50%)",
-    burger: 96,
-    burgerColor: "hsl(296, 70%, 50%)",
-    kebab: 72,
-    kebabColor: "hsl(97, 70%, 50%)",
-    donut: 140,
-    donutColor: "hsl(340, 70%, 50%)",
+    // burger: 96,
+    // burgerColor: "hsl(296, 70%, 50%)",
+    // kebab: 72,
+    // kebabColor: "hsl(97, 70%, 50%)",
+    // donut: 500,
+    // donutColor: "hsl(340, 70%, 50%)",
   },
   {
-    country: "AE",
+    category: "AE",
     "hot dog": 55,
     "hot dogColor": "hsl(307, 70%, 50%)",
     burger: 28,
@@ -341,7 +341,7 @@ export const mockBarData = [
     donutColor: "hsl(275, 70%, 50%)",
   },
   {
-    country: "AF",
+    category: "AF",
     "hot dog": 109,
     "hot dogColor": "hsl(72, 70%, 50%)",
     burger: 23,
@@ -352,7 +352,7 @@ export const mockBarData = [
     donutColor: "hsl(256, 70%, 50%)",
   },
   {
-    country: "AG",
+    category: "AG",
     "hot dog": 133,
     "hot dogColor": "hsl(257, 70%, 50%)",
     burger: 52,
@@ -363,7 +363,7 @@ export const mockBarData = [
     donutColor: "hsl(9, 70%, 50%)",
   },
   {
-    country: "AI",
+    category: "AI",
     "hot dog": 81,
     "hot dogColor": "hsl(190, 70%, 50%)",
     burger: 80,
@@ -374,7 +374,7 @@ export const mockBarData = [
     donutColor: "hsl(285, 70%, 50%)",
   },
   {
-    country: "AL",
+    category: "AL",
     "hot dog": 66,
     "hot dogColor": "hsl(208, 70%, 50%)",
     burger: 111,
@@ -385,7 +385,7 @@ export const mockBarData = [
     donutColor: "hsl(76, 70%, 50%)",
   },
   {
-    country: "AM",
+    category: "AM",
     "hot dog": 80,
     "hot dogColor": "hsl(87, 70%, 50%)",
     burger: 47,

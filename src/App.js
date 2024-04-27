@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Routes, Route } from "react-router-dom";
 import Topbar from "./scenes/global/Topbar";
 import Sidebar from "./scenes/global/Sidebar";
-import Dashboard from "./scenes/dashboard";
+import StatsDashboard from "./scenes/dashboard/StatsDashboard";
 import UserDashboard from "./scenes/dashboard/UserDashboard"
 import Team from "./scenes/team";
 import AddCategory from "./scenes/Category";
@@ -38,7 +38,7 @@ function App() {
               !regularUser && <Topbar setIsSidebar={setIsSidebar} />
             }
             <Routes>
-              <Route path="/" element={regularUser ? <UserDashboard /> : <Dashboard />} />
+              <Route path="/" element={false ? <UserDashboard /> : <StatsDashboard />} />
               <Route path="/team" element={<Team />} />
               <Route path="/category" element={<AddCategory />} />
               <Route path="/categoryList" element={<CategoryList />} />
