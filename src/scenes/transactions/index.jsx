@@ -1,5 +1,5 @@
 import { Box, Typography, useTheme } from "@mui/material";
-import { DataGrid, GridActionsCellItem } from "@mui/x-data-grid";
+import { DataGrid, GridActionsCellItem, gridClasses } from "@mui/x-data-grid";
 import { tokens } from "../../theme";
 import { _categoryList } from "../../data/CategoryList";
 import AdminPanelSettingsOutlinedIcon from "@mui/icons-material/AdminPanelSettingsOutlined";
@@ -164,7 +164,9 @@ const Transactions = () => {
         items: x?.items?.map(item => item?.category?.name)?.join(", "),
         createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
         id: x?._id,
-        price: x?.grandTotal?.toLocaleString()
+        price: x?.grandTotal?.toLocaleString(),
+        receiving: x?.receiving,
+        transactionType: x?.transactionType,
       })) || [])
       setLoading(false)
     } catch (error) {
@@ -227,7 +229,13 @@ const Transactions = () => {
           },
         }}
       >
-        <DataGrid loading={loading} checkboxSelection rows={transactions} columns={columns} />
+        <DataGrid 
+          loading={loading} 
+          checkboxSelection 
+          rows={transactions} 
+          columns={columns}
+          // getRowClassName={(params) =>  params?.row?.receiving > 0 ? 'cold': 'cold'}
+        />
       </Box>
     </Box>
   );

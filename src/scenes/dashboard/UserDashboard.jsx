@@ -21,19 +21,19 @@ import _ from "lodash"
 import Header from '../../components/Header';
 import moment from 'moment'
 import axios from 'axios';
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
   display: 'flex',
   alignItems: "center",
-  justifyContent: "flex-end",
+  justifyContent: "space-between",
   marginTop: "20px"
 }));
-export const RowSection = styled(Box)(({theme, border=false}) => ({
+export const RowSection = styled(Box)(({theme, border=false, padding=false}) => ({
   display: 'flex',
-  padding: "20px",
+  padding: padding && padding || "20px",
   gap: "10px",
-  marginBottom: "10px",
   border: border && ".5px solid #909090",
 }));
 export const ColumnSection = styled(Box)(({theme}) => ({
@@ -65,7 +65,9 @@ const UserDashboard = () => {
   const [categories,setCategories] = useState([])
   const [openPDFDialog, setOpenPDFDialog] = useState(false)
   const [transactionId, setTransactionId] = useState('')
-
+  const [cashFlag, setCashFlag] = useState(true);
+  const [bookingFlag, setBookingFlag] = useState(false)
+  const [receivingAmount, setReceivingAmount] = useState('')
   const invoiceDate = moment().format('YYYY-MM-DD');
 
   
@@ -353,6 +355,8 @@ const result = Object.values(accumulation || {}).map(item => {
         builty: builty,
         cnic: cnic,
         contact: contact,
+        receiving: bookingFlag ? parseFloat(receivingAmount) : 0,
+        transactionType: bookingFlag ? "Booking" : "Cash", 
       }
   
       const response = await axios.post(`${BASEURL}/api/transaction`, _transactions, {
@@ -417,6 +421,10 @@ const result = Object.values(accumulation || {}).map(item => {
     fetchTransactions();
     // setInvoiceDate(moment().format('DD-MM-YYYY'))
   },[])
+  useEffect(()=> {
+    if(cashFlag)
+      setReceivingAmount('')
+  },[cashFlag])
   const CategoryLabels = {
     meter: "Meters",
     dozen: "Dozens",
@@ -425,6 +433,25 @@ const result = Object.values(accumulation || {}).map(item => {
     piece: "Pieces"
   }
 
+  const handleCashFlagChange = () => {
+    setCashFlag(prevCashFlag => {
+      if (!prevCashFlag) {
+        setBookingFlag(false);
+      }
+      return !prevCashFlag;
+    });
+  };
+
+  const handleBookingFlagChange = () => {
+    setBookingFlag(prevBookingFlag => {
+      if (!prevBookingFlag) {
+        setCashFlag(false);
+      }
+      return !prevBookingFlag;
+    });
+  };
+
+
   return (
     <div style={{
             margin: "10px"
@@ -432,7 +459,7 @@ const result = Object.values(accumulation || {}).map(item => {
       <Box m="20px">
         <Header title="Mahmood Dari House"/>
       </Box>
-      <RowSection border>
+      <RowSection mb={1} border>
         <TextField
               sx={{
                   width: "30%",
@@ -485,7 +512,7 @@ const result = Object.values(accumulation || {}).map(item => {
             // onChange={(e) => setInvoiceDate(e.target.value)}
           />
       </RowSection>
-      <RowSection>
+      <RowSection mb={1}>
         <Autocomplete
           sx={{
               width: "70%",
@@ -553,6 +580,25 @@ const result = Object.values(accumulation || {}).map(item => {
           Add
         </Button>
       </RowSection>
+      <RowSection padding="0px 10px 20px 20px">
+              <TextField
+                  sx={{
+                      width: "60%",
+                  }}
+                  size='small'
+                  label="Receiving Amount"
+                  value={receivingAmount}
+                  disabled={cashFlag}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => setReceivingAmount(e.target.value)}
+              />
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={cashFlag} onChange={handleCashFlagChange}/>} label="Cash" />
+              </FormGroup>
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={bookingFlag} onChange={handleBookingFlagChange} />} label="Booking" />
+              </FormGroup>
+            </RowSection>
       
       
 
