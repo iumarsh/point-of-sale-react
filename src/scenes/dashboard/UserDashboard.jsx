@@ -27,7 +27,7 @@ import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 export const FooterSection = styled(Box)(({theme}) => ({
   display: 'flex',
   alignItems: "center",
-  justifyContent: "space-between",
+  justifyContent: "flex-end",
   marginTop: "20px"
 }));
 export const RowSection = styled(Box)(({theme, border=false, padding=false}) => ({
