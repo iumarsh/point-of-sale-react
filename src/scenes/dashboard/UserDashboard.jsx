@@ -355,7 +355,7 @@ const result = Object.values(accumulation || {}).map(item => {
         builty: builty,
         cnic: cnic,
         contact: contact,
-        receiving: bookingFlag ? parseFloat(receivingAmount) : 0,
+        receiving: bookingFlag ? parseFloat(receivingAmount || 0) : 0,
         transactionType: bookingFlag ? "Booking" : "Cash", 
       }
   

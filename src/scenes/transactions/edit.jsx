@@ -23,6 +23,7 @@ import Header from '../../components/Header';
 import moment from 'moment'
 import { useNavigate, useParams } from 'react-router-dom';
 import axios from 'axios'
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
 export const FooterSection = styled(Box)(({ theme }) => ({
     display: 'flex',
@@ -64,6 +65,14 @@ const EditTransaction = () => {
         setInvoiceDate(moment.utc(transaction.createdAt, "YYYY-MM-DDTHH:mm:ss.SSS[Z]").format('YYYY-MM-DD'))
         setCustomerName(transaction?.customerName)
         setBuilty(transaction?.builty)
+        setReceiving(transaction?.receiving)
+        if(transaction?.transactionType == "Booking"){
+            setBookingFlag(true);
+            setCashFlag(false)
+        }else {
+            setBookingFlag(false);
+            setCashFlag(true)
+        }
         setTableData(transaction.items !== undefined ? transaction?.items?.map(x => ({
             ...x,
             quantity: x?.quantity/x?.than
@@ -87,6 +96,9 @@ const EditTransaction = () => {
     const [discount, setDiscount] = useState(0);
     const [customerName, setCustomerName] = useState('');
     const [builty, setBuilty] = useState("")
+    const [receiving,setReceiving] = useState(0);
+    const [cashFlag, setCashFlag] = useState(false);
+    const [bookingFlag, setBookingFlag] = useState(false)
     const [cnic, setCnic] = useState('');
     const [contact, setContact] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(moment().format('YYYY-MM-DD'));
@@ -128,6 +140,23 @@ const EditTransaction = () => {
             // setThan(1)
         }
     };
+    const handleCashFlagChange = () => {
+        setCashFlag(prevCashFlag => {
+          if (!prevCashFlag) {
+            setBookingFlag(false);
+          }
+          return !prevCashFlag;
+        });
+      };
+    
+      const handleBookingFlagChange = () => {
+        setBookingFlag(prevBookingFlag => {
+          if (!prevBookingFlag) {
+            setCashFlag(false);
+          }
+          return !prevBookingFlag;
+        });
+      };
     //PDF
     const generatePDF = (transactionId = null) => {
 
@@ -305,7 +334,9 @@ const EditTransaction = () => {
                 deletedItems: deletedItems,
                 builty: builty,
                 contact: contact,
-                cnic: cnic
+                cnic: cnic,
+                receiving: parseFloat(receiving || 0),
+                transactionType: bookingFlag ? "Booking" : "Cash",
             }
 
 
@@ -519,6 +550,25 @@ const EditTransaction = () => {
                 <Button disabled={_.isEmpty(selectedItem)} sx={{ height: "36px", marginLeft: "10px" }} size="small" variant="contained" onClick={handleAdd}>
                     Add
                 </Button>
+            </RowSection>
+            <RowSection padding="0px 0px 0px 20px !important">
+              <TextField
+                  sx={{
+                      width: "60%",
+                  }}
+                  size='small'
+                  label="Receiving Amount"
+                  value={receiving}
+                  disabled={cashFlag}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => setReceiving(e.target.value)}
+              />
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={cashFlag} onChange={handleCashFlagChange}/>} label="Cash" />
+              </FormGroup>
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={bookingFlag} onChange={handleBookingFlagChange} />} label="Booking" />
+              </FormGroup>
             </RowSection>
 
 

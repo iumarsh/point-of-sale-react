@@ -16,6 +16,7 @@ import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import 'jspdf-invoice-template';
 import Button from '@mui/material/Button';
+import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
 export const RowSection = styled(Box)(({ theme, border = false }) => ({
     display: 'flex',
@@ -48,6 +49,14 @@ const ViewTransaction = () => {
         setCustomerName(transaction?.customerName)
         setBuilty(transaction?.builty)
         setContact(transaction?.contact)
+        setReceiving(transaction?.receiving)
+        if(transaction?.transactionType == "Booking"){
+            setBookingFlag(true);
+            setCashFlag(false)
+        }else {
+            setBookingFlag(false);
+            setCashFlag(true)
+        }
         setCnic(transaction?.cnic)
         setTableData(transaction.items !== undefined ? transaction?.items?.map(x => ({
             ...x,
@@ -68,6 +77,9 @@ const ViewTransaction = () => {
     const [customerName, setCustomerName] = useState('');
     const [builty, setBuilty] = useState('')
     const [cnic, setCnic] = useState('');
+    const [receiving,setReceiving] = useState(0);
+    const [cashFlag, setCashFlag] = useState(false);
+    const [bookingFlag, setBookingFlag] = useState(false)
     const [contact, setContact] = useState('');
     const [invoiceDate, setInvoiceDate] = useState(moment().format('YYYY-MM-DD'));
     const [tableData, setTableData] = useState([]);
@@ -276,6 +288,25 @@ const ViewTransaction = () => {
                     onChange={(e) => setInvoiceDate(e.target.value)}
                     disabled
                 />
+            </RowSection>
+            <RowSection padding="0px 0px 0px 20px !important">
+              <TextField
+                  sx={{
+                      width: "60%",
+                  }}
+                  size='small'
+                  label="Receiving Amount"
+                  value={receiving}
+                  disabled={true}
+                  InputLabelProps={{ shrink: true }}
+                  onChange={(e) => setReceiving(e.target.value)}
+              />
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={cashFlag} disabled/>} label="Cash" />
+              </FormGroup>
+              <FormGroup>
+                <FormControlLabel control={<Checkbox checked={bookingFlag} disabled/>} label="Booking" />
+              </FormGroup>
             </RowSection>
 
             <Table sx={{ maxHeight: "100vh", overflowY: "scroll" }}>

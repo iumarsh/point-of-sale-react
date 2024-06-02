@@ -165,7 +165,7 @@ const Transactions = () => {
         createdDate: moment(x?.createdAt).format("DD/MM/YYYY"),
         id: x?._id,
         price: x?.grandTotal?.toLocaleString(),
-        receiving: x?.receiving,
+        receiving: x?.receiving || 0,
         transactionType: x?.transactionType,
       })) || [])
       setLoading(false)
