@@ -11,7 +11,7 @@ import { BASEURL } from '../../data/endpoints';
 import Header from '../../components/Header';
 import moment from 'moment'
 import { useParams } from 'react-router-dom';
-import axios from 'axios'
+import axios from '../../utility/axiosConfig'
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
 import 'jspdf-invoice-template';
@@ -66,7 +66,7 @@ const ViewTransaction = () => {
 
     const fetchTransaction = async (id) => {
         try {
-            const response = await axios.get(`${BASEURL}/api/transaction/${id}`);
+            const response = await axios.get(`/transaction/${id}`);
             console.log('Data ****: ', response.data.transaction);
             setTransaction(response.data.transaction)
         } catch (error) {

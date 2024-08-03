@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { BASEURL } from '../../../data/endpoints';
-import axios from 'axios'
+import axios from '../../../utility/axiosConfig'
 const LedgerUpdate = ({
     setOpen = "",
     open = "",
@@ -26,7 +26,7 @@ const LedgerUpdate = ({
           deletedItems:[],
           receiving: parseFloat(editedItem?.receiving) + parseFloat(receivingAmount) 
       }
-      const response = await axios.put(`${BASEURL}/api/transaction/${editedItem?._id}`, _transactions, {
+      const response = await axios.put(`/transaction/${editedItem?._id}`, _transactions, {
         headers: {
           'Content-Type': 'application/json',
         },

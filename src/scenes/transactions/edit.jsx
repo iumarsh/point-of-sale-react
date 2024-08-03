@@ -22,7 +22,7 @@ import _ from "lodash"
 import Header from '../../components/Header';
 import moment from 'moment'
 import { useNavigate, useParams } from 'react-router-dom';
-import axios from 'axios'
+import axios from '../../utility/axiosConfig'
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
 
 export const FooterSection = styled(Box)(({ theme }) => ({
@@ -81,7 +81,7 @@ const EditTransaction = () => {
 
     const fetchTransaction = async (id) => {
         try {
-            const response = await axios.get(`${BASEURL}/api/transaction/${id}`);
+            const response = await axios.get(`/transaction/${id}`);
             console.log('Data ****: ', response.data.transaction);
             setTransaction(response.data.transaction)
         } catch (error) {
@@ -341,7 +341,7 @@ const EditTransaction = () => {
 
 
             //
-            const response = await axios.put(`${BASEURL}/api/transaction/${transactionID}`, _transactions, {
+            const response = await axios.put(`transaction/${transactionID}`, _transactions, {
                 headers: {
                   'Content-Type': 'application/json',
                 },
@@ -394,14 +394,12 @@ const EditTransaction = () => {
     // }
 
     const fetchCategories = async () => {
-        const url = new URL('/api/category', BASEURL)
-        const response = await fetch(url, {
-            method: 'GET',
+        const response = await axios.get('/category', {
             headers: {
                 'Accept': 'application/json',
             },
         });
-        const _categories = await response?.json()
+        const _categories = response?.data;
         setCategories(_categories?.categories?.map(x => ({
             name: x?.name,
             price: x?.price,

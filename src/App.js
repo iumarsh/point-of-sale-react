@@ -26,12 +26,12 @@ import ViewTransaction from "./scenes/transactions/view";
 import PrivateRoute from "./utility/PrivateRoute";
 import Login from "./scenes/login";
 import AuthContext, { AuthProvider } from "./utility/AuthContext";
+import MainDashboard from "./scenes/dashboard/MainDashboard";
 
 function App() {
   const [theme, colorMode] = useMode();
   const [isSidebar, setIsSidebar] = useState(true);
   const regularUser = true
-
   
   return (
     <AuthProvider>
@@ -52,7 +52,7 @@ function App() {
               <Route path="/login" element={<Login />} />
               <Route path="/"  element={
                   <PrivateRoute>
-                    {regularUser ? <UserDashboard /> : <Dashboard />}
+                    <MainDashboard/>
                   </PrivateRoute>
                 } 
               />

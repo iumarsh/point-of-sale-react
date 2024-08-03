@@ -42,7 +42,7 @@ const Transactions = () => {
 
   const deleteTransaction = async (id) => {
     try {
-      await axios.delete(`${BASEURL}/api/transaction/${id}`);
+      await axios.delete(`/transaction/${id}`);
       fetchTransactions()
     } catch (error) {
       alert('Error')
