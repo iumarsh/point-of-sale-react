@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Box, TextField, Button, Dialog, DialogTitle, DialogContent, DialogActions, Select, MenuItem, FormControl, InputLabel } from "@mui/material";
 import { useNavigate } from 'react-router-dom';
 import { BASEURL } from '../../../data/endpoints';
+import axios from '../../../utility/axiosConfig';
 const CategoryUpdate = ({
     setOpen = "",
     open = "",
@@ -38,19 +39,14 @@ const CategoryUpdate = ({
         additionalInfo,
         price,
     }
-    const url = new URL(`/api/category/${categoryId}`, BASEURL); 
-    const response = await fetch(url, {
-      method: 'PUT',
+    const response = await axios.put(`/category/${categoryId}`, category, {
       headers: {
         'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(category),
+      }
     });
-    if(response.ok){
       fetchCategories();
-        setOpen(false);
-    }
-    setLoading(false);
+      setOpen(false);
+      setLoading(false);
     } catch (error) {
       setLoading(false);
       console.error('Error adding category:', error);

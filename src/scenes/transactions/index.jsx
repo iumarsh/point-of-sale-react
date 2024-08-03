@@ -9,7 +9,7 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import moment from 'moment'
 import { BASEURL } from "../../data/endpoints";
-import axios from 'axios'
+import axios from '../../utility/axiosConfig'
 
 import DeleteIcon from "@mui/icons-material/DeleteOutlined";
 import EditIcon from "@mui/icons-material/Edit";
@@ -149,16 +149,20 @@ const Transactions = () => {
   const fetchTransactions = async () => {
     try {
       setLoading(true)
-      const url = new URL('/api/transaction', BASEURL)
-      const response = await fetch(url, {
-        method: 'GET',
+      // const url = new URL('/api/transaction', BASEURL)
+      // const response = await fetch(url, {
+      //   method: 'GET',
+      //   headers: {
+      //     'Accept': 'application/json',
+      //   },
+      // });
+
+      const response = await axios.get('/transaction', {
         headers: {
-          'Accept': 'application/json',
-        },
-      });
-      const _transactions = await response?.json()
-      console.log('_transactions: ', _transactions);
-      console.log('_transactions?.transactions: ', _transactions?.transactions);
+          'Accept': 'application/json'
+        }
+      })
+      const _transactions = response?.data;
       setTransactions(_transactions?.transactions?.map(x => ({
         ...x,
         items: x?.items?.map(item => item?.category?.name)?.join(", "),

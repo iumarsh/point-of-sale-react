@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -20,8 +20,10 @@ import { BASEURL } from '../../data/endpoints';
 import _ from "lodash"
 import Header from '../../components/Header';
 import moment from 'moment'
-import axios from 'axios';
+import axios from '../../utility/axiosConfig'
 import { Checkbox, FormControlLabel, FormGroup } from '@mui/material';
+import Logout from '@mui/icons-material/Logout';
+import AuthContext from '../../utility/AuthContext';
 
 
 export const FooterSection = styled(Box)(({theme}) => ({
@@ -70,7 +72,7 @@ const UserDashboard = () => {
   const [receivingAmount, setReceivingAmount] = useState('')
   const invoiceDate = moment().format('YYYY-MM-DD');
 
-  
+  const { user, loading, logout } = useContext(AuthContext);
 
 
   //
@@ -359,7 +361,7 @@ const result = Object.values(accumulation || {}).map(item => {
         transactionType: bookingFlag ? "Booking" : "Cash", 
       }
   
-      const response = await axios.post(`${BASEURL}/api/transaction`, _transactions, {
+      const response = await axios.post(`/transaction`, _transactions, { //
         headers: {
           'Content-Type': 'application/json',
         },
@@ -387,33 +389,35 @@ const result = Object.values(accumulation || {}).map(item => {
   }
   
   const fetchCategories = async () => {
-    const url = new URL('/api/category',BASEURL)
-    const response = await fetch(url, {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/json',
-      },
-    });
-    const _categories = await response?.json()
-    setCategories(_categories?.categories?.map(x => ({
-      name: x?.name,
-      price: x?.price,
-      id: x?._id,
-      type: x?.categoryType
-    })) || [])
+    try {
+      const response = await axios.get('/category', {
+        headers: {
+          'Accept': 'application/json',
+        },
+      });
+      console.log('response: ', response);
+      const _categories = response.data;
+      setCategories(_categories?.categories?.map(x => ({
+        name: x?.name,
+        price: x?.price,
+        id: x?._id,
+        type: x?.categoryType
+      })) || [])
+    } catch (error) {
+      console.log('error: ', error);
+      
+    }
   }
 
   ///transactions
 
   const fetchTransactions = async () => {
-    const url = new URL('/api/transaction',BASEURL)
-    const response = await fetch(url, {
-      method: 'GET',
+    const response = await axios.get('/transaction', {
       headers: {
         'Accept': 'application/json',
       },
     });
-    const _transactions = await response?.json()
+    const _transactions = await response?.data
     
   }
   useEffect(()=> {
@@ -456,8 +460,9 @@ const result = Object.values(accumulation || {}).map(item => {
     <div style={{
             margin: "10px"
     }}>
-      <Box m="20px">
+      <Box sx={{display: 'flex', alignItems: "center", justifyContent: "space-between"}} m="20px">
         <Header title="Mahmood Dari House"/>
+        <Logout cursor="pointer" onClick={()=> logout()}/>
       </Box>
       <RowSection mb={1} border>
         <TextField

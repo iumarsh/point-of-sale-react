@@ -8,8 +8,8 @@ import LockOpenOutlinedIcon from "@mui/icons-material/LockOpenOutlined";
 import SecurityOutlinedIcon from "@mui/icons-material/SecurityOutlined";
 import Header from "../../components/Header";
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import { BASEURL } from '../../data/endpoints';
+import axios from '../../utility/axiosConfig'
 const AddCategory = () => {
   const navigate = useNavigate();
   const theme = useTheme();
@@ -33,18 +33,12 @@ const AddCategory = () => {
         price,
         
     }
-    const url = new URL('/api/category',BASEURL)
-    const response = await fetch(url, {
-      method: 'POST',
+    const response = await axios.post('/category', category, {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(category),
     });
-
-    if(response.ok){
-      navigate('/');
-    }
+    navigate('/');
     setLoading(false);
     } catch (error) {
       setLoading(false);

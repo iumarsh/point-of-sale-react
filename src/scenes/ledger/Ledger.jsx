@@ -6,7 +6,7 @@ import Header from '../../components/Header'
 import _ from "lodash"
 import { RowSection, FetchButton, BillItem, ActionItems } from './ledger.styles'
 import { BASEURL } from '../../data/endpoints'
-import axios from 'axios'
+import axios from '../../utility/axiosConfig'
 import Visibility from '@mui/icons-material/Visibility'
 import { useNavigate, useLocation } from "react-router-dom";
 import EditIcon from "@mui/icons-material/Edit";
@@ -33,7 +33,7 @@ const Ledger = () => {
         try {
             setLoading(true);
             let _contactNumner = contactNo?.replace(/\D/g, '')
-            const response = await axios.get(`${BASEURL}/api/transaction/contact/${_contactNumner}`);
+            const response = await axios.get(`/transaction/contact/${_contactNumner}`);
             setLedgerDetails(response?.data?.transactions)
             localStorage.removeItem('ledgerState')
             setLoading(false);

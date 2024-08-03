@@ -12,6 +12,7 @@ import Header from "../../components/Header";
 import { useEffect, useState } from "react";
 import CategoryUpdate from "./Update/CategoryUpdate";
 import { BASEURL } from "../../data/endpoints";
+import axios from "../../utility/axiosConfig";
 
 const CategoryList = () => {
   const theme = useTheme();
@@ -29,21 +30,12 @@ const CategoryList = () => {
    
   const handleDeleteCategory = async (id) => {
     try {
-      const url = new URL(`/api/category/${id}`, BASEURL);
-      const response = await fetch(url, {
-        method: 'DELETE',
+      const response = await axios.delete(`/category/${id}`, {
         headers: {
           'Content-Type': 'application/json',
-        },
-      });
-  
-      if (response.ok) {
-        console.log('Category deleted successfully');
+        }
+      })
         fetchCategories();
-      } else {
-        const error = await response.json();
-        console.error('Error deleting category:', error);
-      }
     } catch (error) {
       console.error('Error deleting category:', error);
     }
@@ -144,15 +136,13 @@ const CategoryList = () => {
 
   const fetchCategories = async () => {
     try {
-      setLoading(true)
-      const url = new URL('/api/category',BASEURL)
-      const response = await fetch(url, {
-        method: 'GET',
+      setLoading(true) ///
+      const response = await axios.get('/category', {
         headers: {
           'Accept': 'application/json',
         },
       });
-      const _categories = await response?.json()
+      const _categories = response?.data;
       setCategories(_categories?.categories?.map(x => ({
         ...x,
         id: x?._id,
