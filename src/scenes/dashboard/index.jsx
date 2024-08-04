@@ -13,8 +13,10 @@ import LineChart from "../../components/LineChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
 import axios from "../../utility/axiosConfig";
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import moment from "moment";
+import Logout from "@mui/icons-material/Logout";
+import AuthContext from "../../utility/AuthContext";
 
 const Dashboard = () => {
   const theme = useTheme();
@@ -22,7 +24,7 @@ const Dashboard = () => {
 
   const [dashboardStats,setDashboardStats ] = useState({})
   const [loading, setLoading] = useState(false)
-
+  const { user, logout } = useContext(AuthContext);
   const fetchTransaction = async () => {
     try {
       setLoading(true)
@@ -91,8 +93,8 @@ const Dashboard = () => {
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
         <Header title="Mahmood Dari House" subtitle="Welcome to your dashboard" />
-
-        <Box>
+        <Logout cursor="pointer" onClick={()=> logout()}/>
+        {/* <Box> */}
           {/* <Button
             sx={{
               backgroundColor: colors.blueAccent[700],
@@ -105,7 +107,7 @@ const Dashboard = () => {
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports
           </Button> */}
-        </Box>
+        {/* </Box> */}
       </Box>
 
       {/* GRID & CHARTS */}

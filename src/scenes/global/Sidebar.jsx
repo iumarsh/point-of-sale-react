@@ -103,7 +103,7 @@ const Sidebar = () => {
                 alt="profile-user"
                 width="100px"
                 height="100px"
-                src={`../../assets/saran.png`}
+                src={`../../assets/${user?.role == "Regular" ? "user.png" : user?.firstName == "Sultan" ? "sultan.jpg" : "saran.png"}`}
                 style={{ cursor: "pointer", borderRadius: "50%" }}
               />
             </Box>
@@ -114,7 +114,7 @@ const Sidebar = () => {
                 fontWeight="bold"
                 sx={{ m: "10px 0 0 0" }}
               >
-                Saran
+                {user?.role == "Regular" ? "Sale Person" : `${user?.firstName}`}
               </Typography>
               <Typography variant="h5" color={colors.greenAccent[500]}>
                 Admin
