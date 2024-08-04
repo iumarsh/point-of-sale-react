@@ -7,7 +7,7 @@ const MainDashboard = () => {
 
     const { user, loading, logout } = useContext(AuthContext);
   return (
-    user?.role == "Regular" ? <UserDashboard/> : <Dashboard/>
+    user?.role != "Regular" ? <UserDashboard/> : <Dashboard/>
   )
 }
 

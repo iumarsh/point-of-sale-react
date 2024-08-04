@@ -12,19 +12,88 @@ import LineChart from "../../components/LineChart";
 // import BarChart from "../../components/BarChart";
 import StatBox from "../../components/StatBox";
 import ProgressCircle from "../../components/ProgressCircle";
+import axios from "../../utility/axiosConfig";
+import { useEffect, useState } from "react";
+import moment from "moment";
 
 const Dashboard = () => {
   const theme = useTheme();
   const colors = tokens(theme.palette.mode);
+
+  const [dashboardStats,setDashboardStats ] = useState({})
+  const [loading, setLoading] = useState(false)
+
+  const fetchTransaction = async () => {
+    try {
+      setLoading(true)
+      let _transactions  = await axios.get('/transaction', {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+      const {tilDateTransactionTotal, dailyTransactionTotal, monthlyTransactionTotal } = calculateTotals(_transactions?.data?.transactions)
+      setDashboardStats({
+        ..._transactions?.data,
+        tilDateTransactionTotal,
+        dailyTransactionTotal,
+        monthlyTransactionTotal
+      })
+      setLoading(false)
+      } catch (error) {
+        setLoading(false)
+      }
+  }
+
+  const calculateTotals = (transactions) => {
+    const today = new Date();
+    const currentYear = today.getFullYear();
+    const currentMonth = today.getMonth(); // Note: getMonth() returns 0-based month index
+
+    const todayString = today.toISOString().slice(0, 10); // Get today's date in 'YYYY-MM-DD' format
+    let tilDateTransactionTotal = 0;
+    let dailyTransactionTotal = 0;
+    let monthlyTransactionTotal = 0;
+
+    transactions.forEach(transaction => {
+        tilDateTransactionTotal += transaction.grandTotal;
+
+        const transactionDate = new Date(transaction.createdAt);
+        const transactionDateString = transaction.createdAt.slice(0, 10);
+
+        // Check if the transaction date is today
+        if (transactionDateString === todayString) {
+            dailyTransactionTotal += transaction.grandTotal;
+        }
+
+        // Check if the transaction date is in the current month and year
+        if (transactionDate.getFullYear() === currentYear && transactionDate.getMonth() === currentMonth) {
+            monthlyTransactionTotal += transaction.grandTotal;
+        }
+    });
+
+    return {
+        tilDateTransactionTotal,
+        dailyTransactionTotal,
+        monthlyTransactionTotal
+    };
+}
+
+  
+  
+
+  useEffect(()=> {
+    fetchTransaction()
+  },[])
   
   return (
+    loading ? <p>Loading...</p> :
     <Box m="20px">
       {/* HEADER */}
       <Box display="flex" justifyContent="space-between" alignItems="center">
-        <Header title="DASHBOARD" subtitle="Welcome to your dashboard" />
+        <Header title="Mahmood Dari House" subtitle="Welcome to your dashboard" />
 
         <Box>
-          <Button
+          {/* <Button
             sx={{
               backgroundColor: colors.blueAccent[700],
               color: colors.grey[100],
@@ -35,7 +104,7 @@ const Dashboard = () => {
           >
             <DownloadOutlinedIcon sx={{ mr: "10px" }} />
             Download Reports
-          </Button>
+          </Button> */}
         </Box>
       </Box>
 
@@ -55,8 +124,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="12,361"
-            subtitle="Emails Sent"
+            title={dashboardStats?.daily?.toLocaleString()}
+            subtitle="Daily Transaction"
             progress="0.75"
             increase="+14%"
             icon={
@@ -74,8 +143,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="431,225"
-            subtitle="Sales Obtained"
+            title={dashboardStats?.dailyTransactionTotal?.toLocaleString()}
+            subtitle="Daily Sales"
             progress="0.50"
             increase="+21%"
             icon={
@@ -93,8 +162,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="32,441"
-            subtitle="New Clients"
+            title={dashboardStats?.monthly?.toLocaleString()} //count
+            subtitle="Monthly Transactions"
             progress="0.30"
             increase="+5%"
             icon={
@@ -112,8 +181,8 @@ const Dashboard = () => {
           justifyContent="center"
         >
           <StatBox
-            title="1,325,134"
-            subtitle="Traffic Received"
+            title={dashboardStats?.monthlyTransactionTotal?.toLocaleString()}
+            subtitle="Monthly Sales"
             progress="0.80"
             increase="+43%"
             icon={
@@ -143,22 +212,23 @@ const Dashboard = () => {
                 fontWeight="600"
                 color={colors.grey[100]}
               >
-                Revenue Generated
+                Total Sales
               </Typography>
               <Typography
                 variant="h3"
                 fontWeight="bold"
                 color={colors.greenAccent[500]}
               >
-                $59,342.32
+                {dashboardStats?.tilDateTransactionTotal?.toLocaleString()}
               </Typography>
             </Box>
             <Box>
-              <IconButton>
+              {/* <IconButton>
                 <DownloadOutlinedIcon
                   sx={{ fontSize: "26px", color: colors.greenAccent[500] }}
                 />
-              </IconButton>
+              </IconButton> */} 
+              {/* Download Icon */}
             </Box>
           </Box>
           <Box height="250px" m="-20px 0 0 0">
@@ -183,9 +253,9 @@ const Dashboard = () => {
               Recent Transactions
             </Typography>
           </Box>
-          {mockTransactions.map((transaction, i) => (
+          {dashboardStats?.transactions?.slice(0,6).map((transaction, i) => (
             <Box
-              key={`${transaction.txId}-${i}`}
+              key={`${transaction._id}-${i}`}
               display="flex"
               justifyContent="space-between"
               alignItems="center"
@@ -198,26 +268,26 @@ const Dashboard = () => {
                   variant="h5"
                   fontWeight="600"
                 >
-                  {transaction.txId}
+                  {transaction._id}
                 </Typography>
                 <Typography color={colors.grey[100]}>
-                  {transaction.user}
+                  {transaction.customerName || "-"}
                 </Typography>
               </Box>
-              <Box color={colors.grey[100]}>{transaction.date}</Box>
+              <Box color={colors.grey[100]}>{moment(transaction?.updatedAt).format('DD-MM-YYYY')}</Box>
               <Box
                 backgroundColor={colors.greenAccent[500]}
                 p="5px 10px"
                 borderRadius="4px"
               >
-                ${transaction.cost}
+                {transaction.grandTotal?.toLocaleString()}
               </Box>
             </Box>
           ))}
         </Box>
 
         {/* ROW 3 */}
-        <Box
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -242,8 +312,8 @@ const Dashboard = () => {
             </Typography>
             <Typography>Includes extra misc expenditures and costs</Typography>
           </Box>
-        </Box>
-        <Box
+        </Box> */}
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -256,10 +326,10 @@ const Dashboard = () => {
             Sales Quantity
           </Typography>
           <Box height="250px" mt="-20px">
-            {/* <BarChart isDashboard={true} /> */}
+            <BarChart isDashboard={true} />
           </Box>
-        </Box>
-        <Box
+        </Box> */}
+        {/* <Box
           gridColumn="span 4"
           gridRow="span 2"
           backgroundColor={colors.primary[400]}
@@ -273,9 +343,9 @@ const Dashboard = () => {
             Geography Based Traffic
           </Typography>
           <Box height="200px">
-            {/* <GeographyChart isDashboard={true} /> */}
+            <GeographyChart isDashboard={true} />
           </Box>
-        </Box>
+        </Box> */}
       </Box>
     </Box>
   );
