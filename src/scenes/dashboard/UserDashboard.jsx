@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import Autocomplete from '@mui/material/Autocomplete';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -73,9 +73,14 @@ const UserDashboard = () => {
   const invoiceDate = moment().format('YYYY-MM-DD');
 
   const { user, loading, logout } = useContext(AuthContext);
+  const quantityInputRef = useRef(null);
 
-
-  //
+  const handleFieldKeyDown = (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      handleAdd();
+    }
+  };
 
   useEffect(()=> {
       if(selectedItem)
@@ -100,11 +105,8 @@ const UserDashboard = () => {
       };
 
       setTableData((prevData) => [...prevData, newItem]);
-      setCurrentId(prev => prev + 1)
-      // Clear inputs after adding
-      // setSelectedItem(null);
-      // setQuantity('');
-      // setThan(1)
+      setCurrentId(prev => prev + 1);
+      setTimeout(() => quantityInputRef.current?.focus(), 0);
     }
   };
   //PDF
@@ -539,7 +541,9 @@ const result = Object.values(accumulation || {}).map(item => {
           label={CategoryLabels?.[selectedItem?.type] ? `Quantity (${CategoryLabels?.[selectedItem?.type]}) `  :  "Quantity"} 
           value={quantity}
           InputLabelProps={{ shrink: true }}
+          inputRef={quantityInputRef}
           onChange={(e) => setQuantity(e.target.value)}
+          onKeyDown={handleFieldKeyDown}
         />
          
         <TextField
@@ -557,6 +561,7 @@ const result = Object.values(accumulation || {}).map(item => {
             else
             setThan(e.target.value)
           }}
+          onKeyDown={handleFieldKeyDown}
         />
         <TextField
           sx={{
