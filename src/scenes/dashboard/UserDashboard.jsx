@@ -176,14 +176,16 @@ const UserDashboard = () => {
 });
 // Create the desired output format
 const result = Object.values(accumulation || {}).map(item => {
+   const qtySum = parseFloat(item.quantity?.reduce((acc, curr) => acc + curr, 0)) || 0;
+   const lineTotal = qtySum * parseFloat(item.price || 0);
+   const discount = Number(item.discount) || 0;
    return {
     Description: `${item.name} (${item.quantity?.map(x => x)?.join(", ")})`,
-    Quantity: `${item.quantity?.reduce((acc, curr) => acc + curr, 0)}`,
+    Quantity: `${qtySum}`,
     Than: item.than,
     UnitOfMeasurement: item.type,
     Price: item.price,
-    Total: (parseFloat(item.quantity?.reduce((acc, curr) => acc + curr, 0)) *parseFloat(item.price))?.toLocaleString(),
-    // Total: (item.quantity * parseInt(item.price)).toLocaleString()
+    Total: (lineTotal * (1 - discount / 100))?.toLocaleString(),
    }
 });
 
@@ -251,7 +253,11 @@ const result = Object.values(accumulation || {}).map(item => {
     setTableData(updatedData);
   };
   const calculateGrandTotal = () => {
-    return tableData.reduce((total, item) => total + item.price * (item.quantity * parseInt(item.than)), 0);
+    return tableData.reduce((total, item) => {
+      const lineTotal = (Number(item.price) || 0) * (Number(item.quantity) || 0) * (Number(item.than) || 1);
+      const discount = Number(item.discount) || 0;
+      return total + lineTotal * (1 - discount / 100);
+    }, 0);
   };
   const updateItem = (id) => {
       setOpenBillingModal(true);
