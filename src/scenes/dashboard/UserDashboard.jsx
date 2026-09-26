@@ -106,6 +106,10 @@ const UserDashboard = () => {
 
       setTableData((prevData) => [...prevData, newItem]);
       setCurrentId(prev => prev + 1);
+      setThan(1);
+      setDiscount(0);
+      setQuantity(1);
+      setRate(selectedItem?.price ?? "");
       setTimeout(() => quantityInputRef.current?.focus(), 0);
     }
   };
@@ -590,6 +594,7 @@ const result = Object.values(accumulation || {}).map(item => {
           value={discount}
           InputLabelProps={{ shrink: true }}
           onChange={(e) => setDiscount(e.target.value)}
+          onKeyDown={handleFieldKeyDown}
         />
         
         <Button disabled={ _.isEmpty(selectedItem)} sx={{height: "36px", marginLeft: "10px"}} size="small" variant="contained" onClick={handleAdd}>

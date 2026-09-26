@@ -66,7 +66,7 @@ const Transactions = () => {
     {
       field: "customerName",
       headerName: "Customer",
-      type: "number",
+      type: "string",
       flex: 1,
     },
     {
