@@ -107,9 +107,7 @@ const UserDashboard = () => {
       setTableData((prevData) => [...prevData, newItem]);
       setCurrentId(prev => prev + 1);
       setThan(1);
-      setDiscount(0);
-      setQuantity(1);
-      setRate(selectedItem?.price ?? "");
+      setQuantity('');
       setTimeout(() => quantityInputRef.current?.focus(), 0);
     }
   };
